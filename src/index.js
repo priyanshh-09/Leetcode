@@ -5,7 +5,7 @@ require("dotenv").config({ path: "../.env" });
 const main = require("./config/db")
 const cookieParser = require("cookie-parser")
 
-app.use(express()); // to convert json obj to js obj
+app.use(express.json()); // to convert json obj to js obj
 app.use(cookieParser());
 
 main()
