@@ -16,13 +16,13 @@ app.use('/user',Authrouter)
 
 const InitializeConnection = async()=>{
   try{
-     await Promise.all([main(), redisclient.connect()]);
-     console.log("DB Connected");
-     app.listen(process.env.PORT,()=>{
+        await Promise.all([main(), redisclient.connect()]);
+        console.log("DB Connected");
+        app.listen(process.env.PORT,()=>{
         console.log("Server lisining at port no: "+ process.env.PORT);   
     })
   }catch(err){
-    console.log("Error: "+err);
+      console.log("Error: "+err);
     
   }
 }

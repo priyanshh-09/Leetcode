@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const redisclient = require("../config/redis");
 const User = require('../models/user');
 
-const userMiddleware = async (req,res,next)=>{
+const adminMiddleware = async (req,res,next)=>{
     try{
 
         const {token} = req.cookies;
@@ -16,9 +16,15 @@ const userMiddleware = async (req,res,next)=>{
             throw new Error("invalid Token");
         }
         const res = await User.findById(_id);
+        
+        if(payload.role != admin){
+            throw new Error("invalid Token");
+        }
+
         if(!res){
             throw new Error("User Does not Exit");
         }
+
 
         const IsBlocked = await redisclient.exists(`token:${token}`);
 
@@ -34,4 +40,6 @@ const userMiddleware = async (req,res,next)=>{
     }
 }
 
-module.exports = userMiddleware;
+module.exports = adminMiddleware;
+
+
