@@ -10,7 +10,7 @@ const problemsSchema = new Schema({
         type: String,
         required: true,
     },
-    diffuculty: {
+    difficulty: {
         type: String,
         enum: ["Easy", "Medium", "Hard"],
     },
@@ -21,18 +21,18 @@ const problemsSchema = new Schema({
     },
     visibleTestCases: [
         {
-        input: {
-            type: String,
-            required: true,
-        },
-        output: {
-            type: String,
-            required: true,
-        },
-        explanation: {
-            type: String,
-            required: true,
-        },
+            input: {
+                type: String,
+                required: true,
+            },
+            output: {
+                type: String,
+                required: true,
+            },
+            explanation: {
+                type: String,
+                required: true,
+            },
         },
     ],
     invisibleTestCases: [
@@ -49,16 +49,26 @@ const problemsSchema = new Schema({
     ],
     startcode: [
         {
-        language: {
-            type: String,
-            required: true,
-        },
-        initialcode: {
-            type: String,
-            required: true,
-        },
+            language: {
+                type: String,
+                required: true,
+            },
+            initialcode: {
+                type: String,
+                required: true,
+            },
         },
     ],
+    referenceSolution: [{
+            language: {
+                type: String,
+                required: true,
+            },
+            completeCode: {
+                type: String,
+                required: true,
+            },
+        }],
     problemCreator:{
         type:Schema.Types.ObjectId,
         ref:'user',

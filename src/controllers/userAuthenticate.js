@@ -15,7 +15,12 @@ const register = async(req,res)=>{
       const user = await User.create(req.body);
 
       const token = jwt.sign({_id:user._id,emailId:emailId,role:'user'},process.env.JWT_KEY,{expiresIn:60*60})
-      res.cookie('token',token,{maxAge:60*60*1000});
+      res.cookie("token", token, {
+        httpOnly: true,
+        maxAge: 60 * 60 * 1000,
+      });
+
+      // res.cookie('token',token,{maxAge:60*60*1000});
 
       res.status(201).send("User Register Successfully");
     }catch(err){
@@ -24,7 +29,8 @@ const register = async(req,res)=>{
 }
 
 const login = async(req,res)=>{
-    try{
+  try{
+      //  console.log(req.body)
         const{emailId,password}= req.body;
         if(!emailId){
             throw new Error("Invalid Credentials")
@@ -34,7 +40,12 @@ const login = async(req,res)=>{
         }
 
        const user = await User.findOne({ emailId });
+       if (!user) {
+         throw new Error("Invalid Credentials");
+       }
+
        const match = await bcrypt.compare(password, user.password);
+       
        if(!match){
         throw new Error("Invalid Credentails");
        }
@@ -44,7 +55,13 @@ const login = async(req,res)=>{
           process.env.JWT_KEY,
           { expiresIn: 60 * 60 },
         );
-        res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
+
+        res.cookie("token", token, {
+          httpOnly: true,
+          maxAge: 60 * 60 * 1000,
+        });
+
+        // res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
         res.status(200).send("Logged In Succesfully")
     }
     catch(err){
@@ -57,8 +74,7 @@ const logout = async(req,res)=>{
         const {token} = req.cookies;
         const payload = jwt.decode(token);
 
-        await redisclient.set(`token: ${token}`,'Blocked')
-
+        await redisclient.set(`token:${token}`,'Blocked')
         await redisclient.expireAt(`token:${token}`,payload.exp);
 
         res.cookie("token",null,{expires: new Date(Date.now())});
@@ -74,7 +90,7 @@ const adminRegister = async(req,res)=>{
       validate(req.body);
       const { firstname, emailId, password } = req.body;
       req.body.password = await bcrypt.hash(password, 10);
-    //   req.body.role = "admin";
+      req.body.role = "admin";
 
       const user = await User.create(req.body);
 
@@ -83,7 +99,13 @@ const adminRegister = async(req,res)=>{
         process.env.JWT_KEY,
         { expiresIn: 60 * 60 },
       );
-      res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        maxAge: 60 * 60 * 1000,
+      });
+
+      // res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
 
       res.status(201).send("User Register Successfully");
     } catch (err) {

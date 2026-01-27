@@ -15,13 +15,13 @@ const adminMiddleware = async (req,res,next)=>{
         if(!_id){
             throw new Error("invalid Token");
         }
-        const res = await User.findById(_id);
+        const result = await User.findById(_id);
         
-        if(payload.role != admin){
+        if(payload.role != "admin"){
             throw new Error("invalid Token");
         }
 
-        if(!res){
+        if(!result){
             throw new Error("User Does not Exit");
         }
 
@@ -32,7 +32,7 @@ const adminMiddleware = async (req,res,next)=>{
             throw new Error("Invalid Token");
         }
 
-        req.res = res;
+        req.user = result;
 
         next();
     }catch(err){
