@@ -154,7 +154,9 @@ const fetchproblem = async(req,res)=>{
        return res.status(400).send("id is not valid");
      }
 
-     const problem = await Problem.findById(id);
+     const problem = await Problem.findById(id).select(
+       "title description difficulty tags visibleTestCases startcode referenceSolution",
+     );
      if(!problem){
       res.status(404).send("Problem is Missing")
      }
@@ -166,7 +168,9 @@ const fetchproblem = async(req,res)=>{
 
 const fetchallproblem = async (req, res)=>{
   try {
-    const problems = await Problem.find({});
+    const problems = await Problem.find({}).select(
+      "title difficulty tags ",
+    );
     if (problems.length===0) {
       res.status(404).send("Problems are Missing");
     }

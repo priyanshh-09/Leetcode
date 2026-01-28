@@ -49,3 +49,7 @@ const submissionsSchema = new Schema({
 },{
     timestamps:true
 });
+
+  
+const submissions = mongoose.model("submissions",submissionsSchema)
+module.exports = submissions;
