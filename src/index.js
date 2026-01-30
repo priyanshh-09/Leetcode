@@ -6,13 +6,16 @@ const main = require("./config/db")
 const cookieParser = require("cookie-parser")
 const Authrouter = require("./routes/userAuth")
 const redisclient = require("./config/redis")
-const Problemrouter = require("./routes/problemCreator")
+const Problemrouter = require("./routes/problemCreator");
+const submissionRouter = require("./routes/submissions");
 
 app.use(express.json()); // to convert json obj to js obj
 app.use(cookieParser());
 
 app.use("/user",Authrouter)
 app.use("/problem", Problemrouter);
+app.use("/submit", submissionRouter);
+
 
 
 
