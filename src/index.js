@@ -13,10 +13,8 @@ app.use(express.json()); // to convert json obj to js obj
 app.use(cookieParser());
 
 app.use("/user",Authrouter)
-app.use("/problem", Problemrouter);
-app.use("/submit", submissionRouter);
-
-
+app.use("/problem",Problemrouter);
+app.use("/submit",submissionRouter);
 
 
 const InitializeConnection = async()=>{
@@ -33,9 +31,3 @@ const InitializeConnection = async()=>{
 }
 
 InitializeConnection();
-
-// main()
-// .then(async ()=>{
-//     
-// })
-// .catch(err=> console.log("Error: "+ err));
