@@ -86,7 +86,45 @@ const handlesubmit = async(req,res)=>{
    }
 }
 
+const handleRuncode = async(req,res)=>{
+   try {
+     const userId = req.result._id;
+     const problemId = req.params.id;
+     const { code, language } = req.body;
+
+     if (!userId || !problemId || !code || !language) {
+       return res.status(400).send("some fields are missing");
+     }
+
+     const problem = await Problem.findById(problemId);
+     if (!problem) {
+       return res.status(404).send("Problem not found");
+     }
+
+     const langId = getLangId(language);
+     if (!langId) {
+       return res.status(400).send(`Unsupported language: ${language}`);
+     }
+
+     const submissions = problem.visibleTestCases.map((testcase) => ({
+       source_code: code,
+       language_id: langId,
+       stdin: testcase.input,
+       expected_output: testcase.output,
+     }));
+     const submitResult = await submitBatch(submissions);
+     const resToken = submitResult.map((val) => val.token);
+     const testRes = await submitToken(resToken);
+
+     res.status(201).send(testRes);
+
+   } catch (err) {
+     res.status(500).send("Internal server Error : " + err);
+   }
+}
+
 
 module.exports = {
-    handlesubmit
-}
+  handlesubmit,
+  handleRuncode,
+};

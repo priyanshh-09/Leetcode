@@ -10,6 +10,7 @@ const {
   deleteproblem,
   fetchproblem,
   fetchallproblem,
+  fetchallproblemsolved,
 } = require("../controllers/userProblems");
 
 
@@ -21,7 +22,7 @@ Problemrouter.delete("/delete/:id", adminMiddleware, deleteproblem);
 
 Problemrouter.get('/get/:id',userMiddleware, fetchproblem); 
 Problemrouter.get('/getall',userMiddleware,fetchallproblem);
-// Problemrouter.get("/allproblems",userMiddleware,fetchallproblemsolved);
+Problemrouter.get("/allproblems",userMiddleware,fetchallproblemsolved);
 
 
 module.exports = Problemrouter;
