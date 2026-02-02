@@ -1,4 +1,5 @@
 const Problem = require("../models/problems");
+const Submissions = require("../models/submissions");
 const User = require("../models/user");
 const {
   getLangId,
@@ -194,6 +195,23 @@ const fetchallproblemsolved = async(req,res)=>{
     }
 }
 
+const submittedProblems = async(req,res)=>{
+  try{
+   const userId = req.result._id;
+   const problemId = req.params.pid;
+
+   const ans = Submissions.find({userId,problemId});
+   if(ans.length==0){
+     return res.status(200).send("No Submisions");
+   }
+     return res.status(200).send(ans);
+
+  }
+  catch(err){
+  return res.status(500).send("Internal server Error");
+  }
+}
+
 module.exports = {
   createproblem,
   updateproblem,
@@ -201,4 +219,5 @@ module.exports = {
   fetchproblem,
   fetchallproblem,
   fetchallproblemsolved,
+  submittedProblems,
 };
