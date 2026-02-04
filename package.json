@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/priyanshh-09/Leetcode#readme",
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
@@ -27,6 +28,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.4",
     "redis": "^5.10.0",
-    "validator": "^13.15.26"
+    "validator": "^13.15.26",
+    "zod": "^4.3.6"
   }
 }
