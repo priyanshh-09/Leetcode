@@ -8,11 +8,13 @@ const jwt = require('jsonwebtoken')
 
 const register = async(req,res)=>{
     try{
+      //  console.log("RAW BODY 👉", req.body);
       validate(req.body)
-      const{firstname,emailId,password} = req.body;
+      // console.log("✅ Passed custom validation");
+      const {firstName, emailId, password } = req.body;
       req.body.password = await bcrypt.hash(password,10);
       req.body.role="user"
-
+      // console.log("👉 Before DB create", req.body);
       const user = await User.create(req.body);
 
       const token = jwt.sign({_id:user._id,emailId:emailId,role:'user'},process.env.JWT_KEY,{expiresIn:60*60})
@@ -32,6 +34,7 @@ const register = async(req,res)=>{
         message:"Registered Successfully"
       });
     }catch(err){
+      // console.error("❌ REGISTER ERROR:", err);
       res.status(400).send("Error: "+err);
     }
 }

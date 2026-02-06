@@ -1,13 +1,21 @@
+require("dotenv").config({ path: "../.env" });
 const express = require("express");
 const app = express();
 // require('dotenv').config()
-require("dotenv").config({ path: "../.env" });
 const main = require("./config/db")
 const cookieParser = require("cookie-parser")
 const Authrouter = require("./routes/userAuth")
 const redisclient = require("./config/redis")
 const Problemrouter = require("./routes/problemCreator");
 const submissionRouter = require("./routes/submissions");
+
+const cors = require("cors");
+
+
+app.use(cors({
+  origin:'http://localhost:5173',
+  credentials:true
+}))
 
 app.use(express.json()); // to convert json obj to js obj
 app.use(cookieParser());

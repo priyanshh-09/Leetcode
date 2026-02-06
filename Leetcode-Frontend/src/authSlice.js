@@ -1,28 +1,31 @@
 import {createAsyncThunk, createSlice, isRejectedWithValue} from '@reduxjs/toolkit';
 import axiosClient from './utils/axiosClient'
-import { response } from 'express';
 
 
 export const registerUser = createAsyncThunk(
     'auth/register',
     async(userData,{rejectWithValue})=>{
-        try{
-          const response = await axiosClient.post('/user/register', userData);
+        try {
+          console.log(userData)
+          const response = await axiosClient.post("/user/register", userData);
           return response.data.user;
-        }catch(err){
-            return rejectWithValue(err);
+        } catch (err) {
+          return rejectWithValue(
+            err.response?.data || { message: err.message },
+          );
         }
+
     }
 )
 
 export const loginUser = createAsyncThunk("auth/login", async(credentials,{rejectWithValue})=>{
-    try{
+    try {
       const response = await axiosClient.post("/user/login", credentials);
       return response.data.user;
-    } 
-    catch (err) {
-      return rejectWithValue(err);
+    } catch (err) {
+      return rejectWithValue(err.response?.data || { message: err.message });
     }
+
   },
 )
 
@@ -30,11 +33,12 @@ export const checkAuth = createAsyncThunk(
   "auth/check",
   async (_, { rejectWithValue }) => {
     try {
-      const {data} = await axiosClient.post("/user/check");
+      const { data } = await axiosClient.get("/user/check");
       return data.user;
     } catch (err) {
-      return rejectWithValue(err);
+      return rejectWithValue(err.response?.data || { message: err.message });
     }
+
   },
 )
 
@@ -45,8 +49,9 @@ export const logoutUser = createAsyncThunk(
       await axiosClient.post("/user/logout");
       return null;
     } catch (err) {
-      return rejectWithValue(err);
+      return rejectWithValue(err.response?.data || { message: err.message });
     }
+
   },
 );
 

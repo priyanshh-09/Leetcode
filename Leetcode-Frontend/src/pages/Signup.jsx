@@ -1,12 +1,22 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import z, { email } from "zod";
+import z from "zod";
+import { useDispatch, useSelector } from "react-redux";
+import { registerUser } from "../authSlice";
+import { useNavigate } from "react-router";
+import { useEffect } from "react";
 
 const signupSchema = z.object({
-    firstName:z.string().min(3,"Name should contain atleast 3 chars"),
-    emailId:z.string().email("Invalid Email"),
-    password:z.string().min(8,"Password must have atleast 8 chars")
-})
+  firstName: z.string().min(3, "Name should contain atleast 3 chars"),
+  emailId: z.string().email("Invalid Email"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .regex(/[A-Z]/, "Must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Must contain at least one lowercase letter")
+    .regex(/[0-9]/, "Must contain at least one number")
+    .regex(/[^A-Za-z0-9]/, "Must contain at least one special character"),
+});
 
 export default function Signup() {
   const {
@@ -14,6 +24,20 @@ export default function Signup() {
     handleSubmit,
     formState: { errors },
   } = useForm({resolver:zodResolver(signupSchema)});
+
+  const {isAuthenticated,loading,error}= useSelector((state)=>state.auth)
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
+  
+  const onSubmit = (data)=>{
+     dispatch(registerUser(data))
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-base-200">
@@ -25,7 +49,7 @@ export default function Signup() {
           </p>
 
           <form
-            onSubmit={handleSubmit((data) => console.log(data))}
+            onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-4 mt-4"
           >
             {/* Name */}

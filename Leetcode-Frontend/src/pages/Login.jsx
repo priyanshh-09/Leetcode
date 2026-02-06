@@ -1,6 +1,10 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
+import { loginUser } from "../authSlice";
+import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
 
 const signupSchema = z.object({
     emailId:z.string().email("Invalid Email"),
@@ -14,6 +18,20 @@ export default function Login() {
     formState: { errors },
   } = useForm({resolver:zodResolver(signupSchema)});
 
+    const {isAuthenticated,loading,error}= useSelector((state)=>state.auth)
+     const dispatch = useDispatch();
+     const navigate = useNavigate();
+
+      useEffect(() => {
+        if (isAuthenticated) {
+          navigate("/");
+        }
+      }, [isAuthenticated,navigate]);
+
+       const onSubmit = (data)=>{
+          dispatch(loginUser(data))
+       }
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-base-200">
       <div className="card w-96 max-w-md shadow-xl bg-base-100">
@@ -26,7 +44,7 @@ export default function Login() {
           </p>
 
           <form
-            onSubmit={handleSubmit((data) => console.log(data))}
+            onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-4 mt-4"
           >
             {/* Email */}

@@ -5,13 +5,12 @@ const userSchema = new Schema(
   {
     firstName: {
       type: String,
-      required: true,
       minLength: 3,
       maxLength: 20,
+      required: true,
     },
     lastName: {
       type: String,
-      required: true,
       minLength: 3,
       maxLength: 20,
     },
@@ -33,15 +32,11 @@ const userSchema = new Schema(
       enum: ["user", "admin"],
       default: "user",
     },
-    problemSolved: {
-      type: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: "problem",
-        },
-      ],
-      unique:true
-    },
+    problemSolved: [{
+      type: Schema.Types.ObjectId,
+      ref: "problem",
+      default: [],
+    }],
     password: {
       type: String,
       required: true,

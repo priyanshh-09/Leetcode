@@ -1,4 +1,4 @@
-import {Routes, Route} from "react-router";
+import {Routes, Route, Navigate} from "react-router";
 import './App.css'
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -13,16 +13,29 @@ function App() {
 
   useEffect(()=>{
     dispatch(checkAuth());
-  },[isAuthenticated])
+  },[dispatch])
    return (
-    <>
-      <Routes>
-        <Route path="/" element={<Home/>}></Route>
-        <Route path="/login" element={<Login />}></Route>
-        <Route path="/signup" element={<Signup />}></Route>
-      </Routes>
-    </>
-  );
+     <>
+       <Routes>
+         <Route
+           path="/"
+           element={isAuthenticated ? <Home /> : <Navigate to="/signup" />}
+         ></Route>
+         <Route
+           path="/login"
+           element={
+             isAuthenticated ? <Navigate to="/" /> : <Login/>
+           }
+         ></Route>
+         <Route
+           path="/signup"
+           element={
+             isAuthenticated ? <Navigate to="/" /> : <Signup/>
+           }
+         ></Route>
+       </Routes>
+     </>
+   );
 }
 
 export default App
