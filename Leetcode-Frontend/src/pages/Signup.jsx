@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../authSlice";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useEffect } from "react";
 
 const signupSchema = z.object({
@@ -25,7 +25,7 @@ export default function Signup() {
     formState: { errors },
   } = useForm({resolver:zodResolver(signupSchema)});
 
-  const {isAuthenticated,loading,error}= useSelector((state)=>state.auth)
+  const {isAuthenticated,loading}= useSelector((state)=>state.auth)
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -107,9 +107,27 @@ export default function Signup() {
             </div>
 
             {/* Submit */}
-            <button type="submit" className="btn btn-primary mt-4">
-              Sign Up
-            </button>
+            <div className="form-control mt-8 flex justify-center">
+              <button
+                type="submit"
+                className={`btn btn-primary ${loading ? "loading" : ""}`}
+                disabled={loading}
+              >
+                {loading ? "Signing Up..." : "Sign Up"}
+              </button>
+            </div>
+
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-500">
+                Already have an account?
+                <Link
+                  to="/login"
+                  className="ml-1 text-primary font-medium hover:underline transition-all duration-200"
+                >
+                  Login
+                </Link>
+              </p>
+            </div>
           </form>
         </div>
       </div>
