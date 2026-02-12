@@ -6,8 +6,8 @@ export const registerUser = createAsyncThunk(
     'auth/register',
     async(userData,{rejectWithValue})=>{
         try {
-          console.log(userData)
           const response = await axiosClient.post("/user/register", userData);
+          console.log(userData)
           return response.data.user;
         } catch (err) {
           return rejectWithValue(
@@ -21,6 +21,7 @@ export const registerUser = createAsyncThunk(
 export const loginUser = createAsyncThunk("auth/login", async(credentials,{rejectWithValue})=>{
     try {
       const response = await axiosClient.post("/user/login", credentials);
+      console.log("LOGIN RESPONSE:", response.data);
       return response.data.user;
     } catch (err) {
       return rejectWithValue(err.response?.data || { message: err.message });
@@ -76,7 +77,7 @@ const authSlice = createSlice({
           })
           .addCase(registerUser.fulfilled, (state, action) => {
             state.loading = false;
-            state.isAuthenticated = !!action.payload;
+            state.isAuthenticated = true;
             state.user = action.payload;
             state.error = null;
           })
@@ -95,7 +96,7 @@ const authSlice = createSlice({
 
           .addCase(loginUser.fulfilled, (state, action) => {
             state.loading = false;
-            state.isAuthenticated = !!action.payload;
+            state.isAuthenticated = true;
             state.user = action.payload;
           })
           .addCase(loginUser.rejected, (state, action) => {
@@ -114,7 +115,7 @@ const authSlice = createSlice({
 
           .addCase(checkAuth.fulfilled, (state, action) => {
             state.loading = false;
-            state.isAuthenticated = !!action.payload;
+            state.isAuthenticated = true;
             state.user = action.payload;
           })
           .addCase(checkAuth.rejected, (state, action) => {

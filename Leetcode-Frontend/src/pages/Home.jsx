@@ -2,10 +2,13 @@ import {useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser } from "../authSlice";
 import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import axiosClient from "../utils/axiosClient";
 
 export default function Home() {
   const { user } = useSelector((state) => state.auth);
+  // console.log("USER:", user);
+
   const dispatch = useDispatch();
 
   const [open, setOpen] = useState(false);
@@ -57,51 +60,61 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-base-200">
       {/* Header */}
-      <header className="navbar bg-base-100 shadow-md px-6">
-        {/* Left */}
+      <header className="navbar bg-base-100 shadow-md px-4 md:px-6">
+        {/* Left Logo */}
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-primary cursor-pointer">
+          <Link to="/" className="text-2xl font-bold text-primary">
             LeetCode
-          </h1>
+          </Link>
         </div>
 
-        {/* Right */}
-        {user && (
-          <div className="relative">
-            {/* Profile Button */}
-            <div
-              onClick={() => setOpen(!open)}
-              className="flex items-center gap-2 cursor-pointer select-none"
-            >
-              <div className="avatar placeholder">
-                <div className="bg-primary text-primary-content rounded-full w-10 flex items-center justify-center">
-                  <span className="uppercase font-semibold">
-                    {user.firstName.charAt(0)}
-                  </span>
+        {/* Right Section */}
+        <div className="flex items-center gap-4 md:gap-8">
+          {/* Create Problem (Only Admin) */}
+          {user?.role === "admin" && (
+            <Link to="/admin" className="btn btn-primary btn-sm md:btn-md">
+              Admin's Home
+            </Link>
+          )}
+
+          {/* Profile Section */}
+          {user && (
+            <div className="relative">
+              <div
+                onClick={() => setOpen(!open)}
+                className="flex items-center gap-2 cursor-pointer select-none"
+              >
+                <div className="avatar placeholder">
+                  <div className="bg-primary text-primary-content rounded-full w-9 md:w-10 flex items-center justify-center">
+                    <span className="uppercase font-semibold text-sm md:text-base">
+                      {user.firstName.charAt(0)}
+                    </span>
+                  </div>
                 </div>
+                <span className="hidden md:block font-medium">
+                  {user.firstName}
+                </span>
               </div>
-              <span className="font-medium">{user.firstName}</span>
+
+              {/* Dropdown */}
+              {open && (
+                <ul className="absolute right-0 mt-2 w-32 bg-base-100 shadow-lg rounded-box border z-50">
+                  <li
+                    onClick={handleLogout}
+                    className="px-4 py-2 cursor-pointer text-error"
+                  >
+                    Logout
+                  </li>
+                </ul>
+              )}
             </div>
-
-            {/* Dropdown */}
-            {open && (
-              <ul className="absolute right-0 mt-1 w-30 bg-base-100 shadow-lg rounded-box border z-50">
-                <li
-                  onClick={handleLogout}
-                  className="px-3 py-1 cursor-pointer text-error"
-                >
-                  Logout
-                </li>
-              </ul>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </header>
-
       {/* Main */}
       <main className="p-6">
         <h2 className="text-3xl font-bold">Welcome to LeetCode 🚀</h2>
-        <div className="flex flex-wrap mt-6 gap-2 p-3 w-[80%] bg-base-100 rounded-xl shadow justify-between">
+        <div className="flex flex-wrap mt-6 gap-2 p-3 w-[80%] rounded-xl shadow justify-between">
           <select
             className="select select-bordered"
             value={filters.status}
@@ -144,7 +157,7 @@ export default function Home() {
                 key={problem._id}
                 onClick={() => navigate(`/problem/${problem._id}`)}
                 className="
-                    card bg-base-100 shadow-sm mt-2
+                    card bg-base-100 shadow-sm
                     hover:bg-base-200
                     hover:shadow-md
                     transition-all duration-200
@@ -153,11 +166,9 @@ export default function Home() {
                     hover:border-primary
                   "
               >
-                <div className="card-body">
+                <div className="p-3">
                   <div className="flex items-center justify-between">
-                    <h2
-                      className="card-title text-base-content transition-colors duration-200 hover:text-primary "
-                    >
+                    <h2 className="card-title text-base-content transition-colors duration-200 hover:text-primary">
                       {problem.title}
                     </h2>
                     {solvedproblems.some((sp) => sp._id === problem._id) && (

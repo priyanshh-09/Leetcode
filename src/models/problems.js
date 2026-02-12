@@ -72,7 +72,7 @@ const problemsSchema = new Schema({
     problemCreator:{
         type:Schema.Types.ObjectId,
         ref:'user',
-        required:true
+        // required:true
     }
 });
 

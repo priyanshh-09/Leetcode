@@ -23,6 +23,7 @@ const createproblem = async(req,res)=>{
    
 
     try{
+          //  console.log("BODY:", req.body);
 
         for(const {language,completeCode} of referenceSolution){
             
@@ -41,11 +42,11 @@ const createproblem = async(req,res)=>{
 
 
                 const submitResult = await submitBatch(submissions);
-                console.log(submitResult)
+                // console.log(submitResult)
 
                 const resToken = submitResult.map((val) => val.token);
                 const testRes = await submitToken(resToken);
-                // console.log(testRes);
+                console.log(testRes);
 
                 for (const test of testRes) {
                 if (test.status_id != 3) {
@@ -62,7 +63,7 @@ const createproblem = async(req,res)=>{
         problemCreator:req.user._id
        })
 
-
+        console.log("Problem Saved Successfully")
        res.status(201).send("Problem Saved Successfully");
 
     }
