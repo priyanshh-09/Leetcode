@@ -6,10 +6,14 @@ const handlesubmit = async(req,res)=>{
    try{
       const userId = req.result._id;
       const problemId  = req.params.id;
-      const {code,language} = req.body;
+      let {code,language} = req.body;
 
       if (!userId || !problemId || !code || !language) {
         return res.status(400).send("some fields are missing");
+      }
+
+      if(language=='cpp'){
+        language='c++'
       }
 
       const problem = await Problem.findById(problemId);
@@ -73,12 +77,21 @@ const handlesubmit = async(req,res)=>{
 
             await submittedResult.save();
 
-             res.status(201).send("Submitted",submittedResult);
+            //  res.status(201).send("Submitted",submittedResult);
 
             if(!req.result.problemSolved.includes(problemId)){
                 req.result.problemSolved.push(problemId)
                 await req.result.save();
             }
+
+            const accepted = (status == "Accepted");
+            res.status(201).json({
+              accepted,
+              totalTestCases: submittedResult.totalTestCases,
+              passedTestCases: testcasespassed,
+              runtime,
+              memory,
+            });
   
    }
    catch(err){
@@ -116,7 +129,35 @@ const handleRuncode = async(req,res)=>{
      const resToken = submitResult.map((val) => val.token);
      const testRes = await submitToken(resToken);
 
-     res.status(201).send(testRes);
+       let testcasespassed = 0;
+       let runtime = 0;
+       let memory = 0;
+       let status = "Accepted";
+       let errorMessage = null;
+
+       for (const test of testRes) {
+         if (test.status_id == 3) {
+           testcasespassed++;
+           runtime = runtime + parseFloat(test.time);
+           memory = Math.max(memory, test.memory);
+         } else {
+           if (test.status_id == 4) {
+             status = "Error";
+             errorMessage = test.stderr;
+           } else {
+             status = "Wrong";
+             errorMessage = test.stderr;
+           }
+         }
+       }
+
+    res.status(201).json({
+      success: status === "Accepted",
+      status,
+      testCases: testRes,
+      runtime,
+      memory,
+    });
 
    } catch (err) {
      res.status(500).send("Internal server Error : " + err);

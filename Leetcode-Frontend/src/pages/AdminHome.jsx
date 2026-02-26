@@ -1,0 +1,78 @@
+import { Link, NavLink } from "react-router";
+// import {plus, Edit, Trash2} from 'lucide-react'
+import { Plus, Edit, Trash2 } from "lucide-react";
+
+export default function AdminHome() {
+
+  const adminOptions = [
+    {
+      id: "create",
+      title: "Create Problem",
+      description: "Add new coding problem to the platform",
+      icon: Plus,
+      color: "btn-success",
+      bgColor: "bg-success/10",
+      route: "/admin/create",
+    },
+    {
+      id: "update",
+      title: "Update Problem",
+      description: "Edit existing problem and their details",
+      icon: Edit,
+      color: "btn-warning",
+      bgColor: "bg-warning/10",
+      route: "/admin/update",
+    },
+    {
+      id: "delete",
+      title: "Delete Problem",
+      description: "Delete existing problem",
+      icon: Trash2,
+      color: "btn-error",
+      bgColor: "bg-error/10",
+      route: "/admin/delete",
+    },
+  ];
+  return (
+    <div className="min-h-screen bg-base-200">
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl text-center font-bold mb-20">Admin Home</h1>
+          <p className="text-base-content/70 text-lg">Manage coding problems on your platform</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {adminOptions.map((option)=>{
+            {/* const icon = option.icon; */}
+             const IconComponent = option.icon;
+            return (
+              <div
+                key={option.id}
+                className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-95"
+              >
+                <div className="card-body items-center text-center p-8">
+                  <div className={`${option.bgColor} p-4 rounded-full mb-4`}>
+                    <IconComponent size={32} className="text-base-content" />
+                  </div>
+                  <h2 className="card-title text-xl mb-2">{option.title}</h2>
+                  <p className="text-base-content/70 mb-6">
+                    {option.description}
+                  </p>
+                  <div className="card-actions">
+                    <div className="card-actions">
+                      <NavLink
+                        to={option.route}
+                        className={`btn ${option.color} btn-wide`}
+                      >
+                        {option.title}
+                      </NavLink>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}

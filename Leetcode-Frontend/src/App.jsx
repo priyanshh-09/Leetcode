@@ -6,8 +6,10 @@ import Signup from "./pages/Signup";
 import { checkAuth } from "./authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import Problem from "./pages/Problem";
-import Adminpanel from "./pages/Adminpanel";
+// import Problem from "./pages/Problem";
+import AdminHome from "./pages/AdminHome";
+import CreateProblem from "./Components/CreateProblem";
+import ProblemPage from "./pages/ProblemPage";
 // const User = require("../../src/models/user");
 
 function App() {
@@ -40,12 +42,22 @@ function App() {
            path="/signup"
            element={isAuthenticated ? <Navigate to="/" /> : <Signup />}
          ></Route>
-         <Route path="/problem/:id" element={<Problem />} />
+         <Route path="/problem/:id" element={<ProblemPage />} />
          <Route
            path="/admin"
            element={
              isAuthenticated && user?.role === "admin" ? (
-               <Adminpanel />
+               <AdminHome />
+             ) : (
+               <Navigate to="/" />
+             )
+           }
+         ></Route>
+         <Route
+           path="/admin/create"
+           element={
+             isAuthenticated && user?.role === "admin" ? (
+               <CreateProblem />
              ) : (
                <Navigate to="/" />
              )
