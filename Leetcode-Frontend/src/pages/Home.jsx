@@ -29,8 +29,10 @@ export default function Home() {
   useEffect(()=>{
     const fetchProblems = async()=>{
       try{
-         const { data } = await axiosClient.get("/problem/getall");
-         setProblems(data);
+        const { data } = await axiosClient.get(
+          "/problem/getall?page=1&limit=10",
+        );
+        setProblems(data.problems); // ✅ correct
       }catch(err){
         console.error("Error Fetching Problems", err)
       }

@@ -169,19 +169,34 @@ const fetchproblem = async(req,res)=>{
    }
 }
 
-const fetchallproblem = async (req, res)=>{
+const fetchallproblem = async (req, res) => {
   try {
-    const problems = await Problem.find({}).select(
-      "title difficulty tags ",
-    );
-    if (problems.length===0) {
-      res.status(404).send("Problems are Missing");
-    }
-    res.status(200).send(problems);
+    // 1️⃣ Get page and limit from query
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    // 2️⃣ Calculate skip
+    const skip = (page - 1) * limit;
+
+    // 3️⃣ Count total problems
+    const totalProblems = await Problem.countDocuments();
+
+    // 4️⃣ Fetch limited problems
+    const problems = await Problem.find({})
+      .select("title difficulty tags")
+      .skip(skip)
+      .limit(limit);
+
+    // 5️⃣ Send paginated response
+    res.status(200).json({
+      problems,
+      totalPages: Math.ceil(totalProblems / limit),
+      currentPage: page,
+    });
   } catch (err) {
-    res.status(500).send("Error :" + err);
+    res.status(500).send("Error :" + err.message);
   }
-}
+};
 
 const fetchallproblemsolved = async(req,res)=>{
     try{
@@ -196,22 +211,37 @@ const fetchallproblemsolved = async(req,res)=>{
     }
 }
 
-const submittedProblems = async(req,res)=>{
-  try{
-   const userId = req.result._id;
-   const problemId = req.params.pid;
+// const submittedProblems = async(req,res)=>{
+//   try{
+//    const userId = req.result._id;
+//    const problemId = req.params.pid;
 
-   const ans = Submissions.find({userId,problemId});
-   if(ans.length==0){
-     return res.status(200).send("No Submisions");
-   }
-     return res.status(200).send(ans);
+//    const ans = await Submissions.find({userId,problemId});
+//    if(ans.length==0){
+//      return res.status(200).send("No Submisions");
+//    }
+//      return res.status(200).send(ans);
 
+//   }
+//   catch(err){
+//   return res.status(500).send("Internal server Error");
+//   }
+// }
+
+const submittedProblems = async (req, res) => {
+  try {
+    const userId = req.result._id;
+    const problemId = req.params.pid;
+
+    const ans = await Submissions.find({ userId, problemId }).sort({
+      createdAt: -1,
+    }); // newest first (optional but professional)
+
+    return res.status(200).json(ans);
+  } catch (err) {
+    return res.status(500).send("Internal server Error");
   }
-  catch(err){
-  return res.status(500).send("Internal server Error");
-  }
-}
+};
 
 module.exports = {
   createproblem,

@@ -25,12 +25,7 @@ Problemrouter.delete("/delete/:id", adminMiddleware, deleteproblem);
 Problemrouter.get('/get/:id',userMiddleware, fetchproblem); 
 Problemrouter.get('/getall',userMiddleware,fetchallproblem);
 Problemrouter.get("/allproblems",userMiddleware,fetchallproblemsolved);
-Problemrouter.get(
-  "/submittedProblems/:pid",
-  userMiddleware,
-  submitRateLimiter,
-  submittedProblems,
-);
+Problemrouter.get("/submittedProblems/:pid",userMiddleware,submitRateLimiter,submittedProblems,);
 
 
 

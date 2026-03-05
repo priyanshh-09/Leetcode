@@ -9,6 +9,7 @@ import { useEffect } from "react";
 // import Problem from "./pages/Problem";
 import AdminHome from "./pages/AdminHome";
 import CreateProblem from "./Components/CreateProblem";
+import DeleteProblem from "./Components/DeleteProblem"
 import ProblemPage from "./pages/ProblemPage";
 // const User = require("../../src/models/user");
 
@@ -58,6 +59,16 @@ function App() {
            element={
              isAuthenticated && user?.role === "admin" ? (
                <CreateProblem />
+             ) : (
+               <Navigate to="/" />
+             )
+           }
+         ></Route>
+         <Route
+           path="/admin/delete"
+           element={
+             isAuthenticated && user?.role === "admin" ? (
+               <DeleteProblem />
              ) : (
                <Navigate to="/" />
              )
