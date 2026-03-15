@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/priyanshh-09/Leetcode#readme",
   "dependencies": {
+    "@google/genai": "^1.44.0",
     "@hookform/resolvers": "^5.2.2",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",

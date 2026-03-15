@@ -21,18 +21,27 @@ export default function Home() {
   const [solvedproblems,setSolvedProblems] = useState([]);
   const navigate = useNavigate();
 
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
   const handleLogout = () => {
     dispatch(logoutUser());
     setOpen(false);
   };
+  
 
+  useEffect(() => {
+    setPage(1);
+  }, [filters]);
+  
   useEffect(()=>{
     const fetchProblems = async()=>{
       try{
         const { data } = await axiosClient.get(
-          "/problem/getall?page=1&limit=10",
+          `/problem/getall?page=${page}&limit=10`,
         );
-        setProblems(data.problems); // ✅ correct
+        setProblems(data.problems); 
+        setTotalPages(data.totalPages);
       }catch(err){
         console.error("Error Fetching Problems", err)
       }
@@ -49,7 +58,7 @@ export default function Home() {
 
     fetchProblems();
     if(user) fetchSolvedProblems();
-  },[user])
+  },[user, page])
 
   const filteredProblem = problems.filter(problem =>{
     const difficultyMatch = filters.difficulty === 'all' || problem.difficulty === filters.difficulty;
@@ -202,6 +211,28 @@ export default function Home() {
               </div>
             );
           })}
+        </div>
+        {/* PAGINATION */}
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <button
+            className="btn btn-sm"
+            disabled={page === 1}
+            onClick={() => setPage((prev) => prev - 1)}
+          >
+            Previous
+          </button>
+
+          <span className="font-semibold">
+            Page {page} of {totalPages}
+          </span>
+
+          <button
+            className="btn btn-sm"
+            disabled={page === totalPages}
+            onClick={() => setPage((prev) => prev + 1)}
+          >
+            Next
+          </button>
         </div>
       </main>
     </div>

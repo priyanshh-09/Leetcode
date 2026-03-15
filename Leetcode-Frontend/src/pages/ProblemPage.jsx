@@ -2,6 +2,7 @@ import { useParams } from "react-router";
 import { useEffect, useState, useRef, useMemo } from "react";
 import axiosClient from "../utils/axiosClient";
 import Editor from "@monaco-editor/react";
+import ChatAi from "../Components/ChatAi";
 
 export default function ProblemPage() {
   const { id } = useParams();
@@ -14,7 +15,7 @@ export default function ProblemPage() {
   const [runResult, setRunResult] = useState(null);
   const [activeLeftTab, setActiveLeftTab] = useState("Description");
   const [activeRightTab, setActiveRightTab] = useState("Code");
-  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
+  const [selectedLanguage, setSelectedLanguage] = useState("cpp");
 
 
   const [submissions, setSubmissions] = useState([]);
@@ -22,9 +23,8 @@ export default function ProblemPage() {
   const [submissionError, setSubmissionError] = useState(null);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
 
-  // const [solutions, setSolutions] = useState([]);
-  // const [solutionsLoading, setSolutionsLoading] = useState(false);
-  // const [solutionsError, setSolutionsError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
 
 
@@ -40,7 +40,9 @@ export default function ProblemPage() {
       try {
         // setLoading(true);
         setLoadingProblem(true)
-        const { data } = await axiosClient.get(`/problem/get/${id}`);
+        const { data } = await axiosClient.get(
+          `/problem/get/${id}`,
+        );
         //  console.log(data);
           setProblem(data);
           // setCode(initialCode);
@@ -62,17 +64,11 @@ export default function ProblemPage() {
     };
   }, [id]);
  
-  useEffect(() => {
-    if ((activeLeftTab === "Submission" || activeLeftTab === "Solutions") && problem?._id){
-      fetchSubmissions();
-    }
-  }, [activeLeftTab, problem]);
-
-  // useEffect(() => {
-  //   if (activeLeftTab === "Solutions" && problem?._id) {
-  //     fetchSubmissions();
-  //   }
-  // }, [activeLeftTab, problem]);
+ useEffect(() => {
+   if (activeLeftTab === "Submission" && problem?._id) {
+     fetchSubmissions();
+   }
+ }, [activeLeftTab, problem, page]);
 
 
   const fetchSubmissions = async () => {
@@ -81,7 +77,7 @@ export default function ProblemPage() {
       setSubmissionError(null);
 
       const { data } = await axiosClient.get(
-        `/problem/submittedProblems/${id}`,
+        `/problem/submittedProblems/${id}?page=${page}&limit=10`,
       );
           // console.log(data)
       setSubmissions(data);
@@ -305,7 +301,28 @@ export default function ProblemPage() {
           ))}
         </tbody>
       </table>
+      {/* PAGINATION */}
+      <div className="flex justify-center gap-4 mt-6">
+        <button
+          className="btn btn-sm"
+          disabled={page === 1}
+          onClick={() => setPage((prev) => prev - 1)}
+        >
+          Previous
+        </button>
 
+        <span className="font-semibold">
+          Page {page} of {totalPages}
+        </span>
+
+        <button
+          className="btn btn-sm"
+          disabled={page === totalPages}
+          onClick={() => setPage((prev) => prev + 1)}
+        >
+          Next
+        </button>
+      </div>
       {/* Code Modal */}
       {selectedSubmission && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -344,7 +361,17 @@ export default function ProblemPage() {
       )}
     </div>
   );
-
+        
+     case "Pie-AskMe":
+      return(
+          <div className="prose max-w-none">
+              <h2 className="text-xl font-bold mb-4">Chat With Pie</h2>
+              <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                <ChatAi problem={problem}/>
+              </div>
+          </div>
+        
+      )
       default:
         return null;
     }
@@ -618,7 +645,7 @@ export default function ProblemPage() {
       <div className="flex justify-between items-center bg-base-200 px-6 py-3 border-b">
         {/* LEFT TABS */}
         <div className="flex gap-10">
-          {["Description", "Editorial", "Solutions", "Submission"].map(
+          {["Description", "Editorial", "Solutions", "Submission","Pie-AskMe"].map(
             (tab) => (
               <button
                 key={tab}
@@ -653,21 +680,27 @@ export default function ProblemPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* LEFT PANEL */}
         <div className="w-1/2 p-6 overflow-y-auto border-r bg-base-100">
-          <h1 className="text-2xl font-bold mb-3">{problem.title}</h1>
+          {activeLeftTab === "Description" && (
+            <>
+              <h1 className="text-2xl font-bold mb-3">{problem.title}</h1>
 
-          <div className="mb-4 flex gap-2 flex-wrap">
-            <span className="badge badge-outline">{problem.difficulty}</span>
-
-            {Array.isArray(problem.tags) ? (
-              problem.tags.map((tag) => (
-                <span key={tag} className="badge badge-outline">
-                  {tag}
+              <div className="mb-4 flex gap-2 flex-wrap">
+                <span className="badge badge-outline">
+                  {problem.difficulty}
                 </span>
-              ))
-            ) : problem.tags ? (
-              <span className="badge badge-outline">{problem.tags}</span>
-            ) : null}
-          </div>
+
+                {Array.isArray(problem.tags) ? (
+                  problem.tags.map((tag) => (
+                    <span key={tag} className="badge badge-outline">
+                      {tag}
+                    </span>
+                  ))
+                ) : problem.tags ? (
+                  <span className="badge badge-outline">{problem.tags}</span>
+                ) : null}
+              </div>
+            </>
+          )}
 
           {renderLeftContent()}
         </div>
@@ -679,9 +712,9 @@ export default function ProblemPage() {
             {/* LANGUAGE BUTTONS */}
             <div className="flex gap-3">
               {[
-                { label: "JavaScript", value: "javascript" },
-                { label: "Java", value: "java" },
                 { label: "C++", value: "cpp" },
+                { label: "Java", value: "java" },
+                { label: "JavaScript", value: "javascript" },
               ].map((lang) => (
                 <button
                   key={lang.value}
