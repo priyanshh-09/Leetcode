@@ -6,6 +6,8 @@ const {
   submitBatch,
   submitToken,
 } = require("../utils/problemUtility");
+const SolutionVideo = require("../models/solutionVideo");
+
 
 
 const createproblem = async(req,res)=>{
@@ -160,9 +162,22 @@ const fetchproblem = async(req,res)=>{
      const problem = await Problem.findById(id).select(
        "title description difficulty tags visibleTestCases startcode referenceSolution",
      );
+      
+     //video content
+     
      if(!problem){
-      res.status(404).send("Problem is Missing")
-     }
+       res.status(404).send("Problem is Missing")
+      }
+      const video = await SolutionVideo.findOne({problemId:id})
+
+      if(video){
+        problem.secureUrl = video.secureUrl;
+        problem.cloudinaryPublilcId = cloudinaryPublilcId;
+        problem.thumbnailUrl = video.thumbnailUrl;
+        problem.duration = video.duration;
+
+        res.status(200).send(problem);  
+      }
      res.status(200).send(problem)
    } catch (err) {
      res.status(500).send("Error :" + err);
@@ -210,23 +225,6 @@ const fetchallproblemsolved = async(req,res)=>{
       return res.status(500).send("Server Error : "+err);
     }
 }
-
-// const submittedProblems = async(req,res)=>{
-//   try{
-//    const userId = req.result._id;
-//    const problemId = req.params.pid;
-
-//    const ans = await Submissions.find({userId,problemId});
-//    if(ans.length==0){
-//      return res.status(200).send("No Submisions");
-//    }
-//      return res.status(200).send(ans);
-
-//   }
-//   catch(err){
-//   return res.status(500).send("Internal server Error");
-//   }
-// }
 
 const submittedProblems = async (req, res) => {
   try {

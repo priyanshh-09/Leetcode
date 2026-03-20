@@ -1,6 +1,6 @@
 import { Link, NavLink } from "react-router";
 // import {plus, Edit, Trash2} from 'lucide-react'
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2 , Video} from "lucide-react";
 
 export default function AdminHome() {
 
@@ -31,6 +31,15 @@ export default function AdminHome() {
       color: "btn-error",
       bgColor: "bg-error/10",
       route: "/admin/delete",
+    },
+    {
+      id: "Solution Video",
+      title: "Upload and Delete Video",
+      description: "Upload and Delete Problems Solution Video",
+      icon: Video,
+      color: "btn-warning",
+      bgColor: "bg-warning/10",
+      route: "/admin/uploadanddelete",
     },
   ];
   return (

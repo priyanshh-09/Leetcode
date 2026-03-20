@@ -10,6 +10,7 @@ const Problemrouter = require("./routes/problemCreator");
 const submissionRouter = require("./routes/submissions");
 const aiRouter = require("./routes/aiChat")
 const cors = require("cors");
+const videoRouter = require("./routes/videoCreator");
 
 
 app.use(cors({
@@ -17,13 +18,14 @@ app.use(cors({
   credentials:true
 }))
 
-app.use(express.json()); // to convert json obj to js obj
+app.use(express.json()); 
 app.use(cookieParser());
 
 app.use("/user",Authrouter)
 app.use("/problem",Problemrouter);
 app.use("/submit",submissionRouter);
 app.use("/ai",aiRouter);
+app.use("/video",videoRouter);
 
 const InitializeConnection = async()=>{
   try{

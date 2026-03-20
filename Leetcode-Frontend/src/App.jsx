@@ -11,6 +11,8 @@ import AdminHome from "./pages/AdminHome";
 import CreateProblem from "./Components/CreateProblem";
 import DeleteProblem from "./Components/DeleteProblem"
 import ProblemPage from "./pages/ProblemPage";
+import UploadandDeleteProblem from "./Components/UploadandDeleteProblem";
+import UploadProblem from "./Components/UploadProblem";
 // const User = require("../../src/models/user");
 
 function App() {
@@ -69,6 +71,26 @@ function App() {
            element={
              isAuthenticated && user?.role === "admin" ? (
                <DeleteProblem />
+             ) : (
+               <Navigate to="/" />
+             )
+           }
+         ></Route>
+         <Route
+           path="/admin/uploadanddelete"
+           element={
+             isAuthenticated && user?.role === "admin" ? (
+               <UploadandDeleteProblem />
+             ) : (
+               <Navigate to="/" />
+             )
+           }
+         ></Route>
+         <Route
+           path="/admin/upload/:problemId"
+           element={
+             isAuthenticated && user?.role === "admin" ? (
+               <UploadProblem />
              ) : (
                <Navigate to="/" />
              )
