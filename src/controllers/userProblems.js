@@ -48,7 +48,7 @@ const createproblem = async(req,res)=>{
 
                 const resToken = submitResult.map((val) => val.token);
                 const testRes = await submitToken(resToken);
-                console.log(testRes);
+                // console.log(testRes);
 
                 for (const test of testRes) {
                 if (test.status_id != 3) {
@@ -65,7 +65,7 @@ const createproblem = async(req,res)=>{
         problemCreator:req.user._id
        })
 
-        console.log("Problem Saved Successfully")
+        // console.log("Problem Saved Successfully")
        res.status(201).send("Problem Saved Successfully");
 
     }
@@ -158,25 +158,28 @@ const fetchproblem = async(req,res)=>{
      if (!id) {
        return res.status(400).send("id is not valid");
      }
-
+      
+    //  console.log("ID RECEIVED:", id);
      const problem = await Problem.findById(id).select(
        "title description difficulty tags visibleTestCases startcode referenceSolution",
      );
-      
+      // console.log("FOUND PROBLEM:", problem);
      //video content
-     
+       
      if(!problem){
-       res.status(404).send("Problem is Missing")
+       return res.status(404).send("Problem is Missing")
       }
       const video = await SolutionVideo.findOne({problemId:id})
 
       if(video){
-        problem.secureUrl = video.secureUrl;
-        problem.cloudinaryPublilcId = cloudinaryPublilcId;
-        problem.thumbnailUrl = video.thumbnailUrl;
-        problem.duration = video.duration;
-
-        res.status(200).send(problem);  
+        const resData = {
+          ...problem.toObject(),
+          secureUrl: video.secureUrl,
+          thumbnailUrl: video.thumbnailUrl,
+          duration: video.duration,
+        };
+        // console.log(resData)
+        return res.status(200).send(resData);
       }
      res.status(200).send(problem)
    } catch (err) {

@@ -90,7 +90,7 @@ const submitToken = async(resToken)=>{
         return result.submissions;
     }
 
-    waiting(1000);
+    await waiting(1000);
   }
 }
 module.exports = {getLangId,submitBatch,submitToken}

@@ -3,6 +3,7 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import axiosClient from "../utils/axiosClient";
 import Editor from "@monaco-editor/react";
 import ChatAi from "../Components/ChatAi";
+import Editorials from "../Components/Editorials";
 
 export default function ProblemPage() {
   const { id } = useParams();
@@ -119,6 +120,8 @@ export default function ProblemPage() {
    );
  };
 
+  
+
   /* ================= LOAD INITIAL CODE ================= */
 
   useEffect(() => {
@@ -205,40 +208,49 @@ export default function ProblemPage() {
         );
 
       case "Editorial":
-        return <p>{problem.editorial || "No editorial available."}</p>;
+        return (
+          <div>
+            <Editorials
+              duration={problem.duration}
+              secureUrl={problem.secureUrl}
+              thumbnailUrl={problem.thumbnailUrl}
+            />
+          </div>
+        );
 
       case "Solutions":
-        if (!problem?.referenceSolution?.length) {
-          return <p>No solutions available.</p>;
-        }
-      return (
-        <div className="space-y-6">
-          {problem.referenceSolution.map((sol, index) => (
-            <div key={index} className="border rounded-xl p-4 bg-base-200">
+  if (!problem?.referenceSolution?.length) {
+    return <p>No solutions available.</p>;
+  }
 
-              <h3 className="font-bold mb-2">{sol.language} Solution</h3>
+  return (
+    <div className="space-y-6">
+      {Array.isArray(problem.referenceSolution) &&
+        problem.referenceSolution.map((sol, index) => (
+          <div key={index} className="border rounded-xl p-4 bg-base-200">
+            <h3 className="font-bold mb-2">{sol.language} Solution</h3>
 
-              <Editor
-                height="300px"
-                language={
-                  sol.language.toLowerCase() === "c++"
-                    ? "cpp"
-                    : sol.language.toLowerCase()
-                }
-                value={sol.completeCode}
-                theme="vs-dark"
-                options={{
-                  readOnly: true,
-                  minimap: { enabled: false },
-                  fontSize: 14,
-                  automaticLayout: true,
-                }}
-              />
-
-            </div>
-          ))}
-        </div>
-      );
+            <Editor
+              height="300px"
+              language={
+                (sol.language || "").toLowerCase() === "c++"
+                  ? "cpp"
+                  : (sol.language || "").toLowerCase()
+              }
+              value={(sol.completeCode || "").replace(/\\n/g, "\n")}
+              theme="vs-dark"
+              options={{
+                readOnly: true,
+                minimap: { enabled: false },
+                fontSize: 14,
+                automaticLayout: true,
+              }}
+            />
+          </div>
+        ))}
+    </div>
+  );
+       
           
      case "Submission":
       if (submissionLoading) {
@@ -585,8 +597,10 @@ export default function ProblemPage() {
   /* ================= LOADING ================= */
 
   if (!problem) {
+    console.log("FULL PROBLEM:", problem);
     return <div className="p-6 text-xl">Fetching Data...</div>;
   }
+  
   
   const handleRunCode = async () => {
     setRunning(true);

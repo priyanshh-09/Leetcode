@@ -1,30 +1,36 @@
 const mongoose = require('mongoose');
 const {Schema} = mongoose;
 
-const videoSchema = new Schema({
-    problemId:{
-        type:Schema.Types.ObjectId,
-        ref:'problem',
-        required:true,
+const videoSchema = new Schema(
+  {
+    problemId: {
+      type: Schema.Types.ObjectId,
+      ref: "problem",
+      required: true,
     },
-    userId:{
-        type:Schema.Types.ObjectId,
-        ref:'user',
-        required:true,
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
     },
-    cloudinaryPublicId:{
-        type:String,
-        required:true
+    cloudinaryPublicId: {
+      type: String,
+      required: true,
     },
-    thumbnailUrl:{
-        type:String
+    secureUrl: {
+      type: String,
     },
-    duration:{
-        type:Number
-    }
-},{
-    timestamps:true
-})
+    thumbnailUrl: {
+      type: String,
+    },
+    duration: {
+      type: Number,
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
 
 
 const SolutionVideo = mongoose.model("solutionVideo", videoSchema);

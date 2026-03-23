@@ -39,7 +39,9 @@ export default function Home() {
       try{
         const { data } = await axiosClient.get(
           `/problem/getall?page=${page}&limit=10`,
+
         );
+        // console.log(data);
         setProblems(data.problems); 
         setTotalPages(data.totalPages);
       }catch(err){
