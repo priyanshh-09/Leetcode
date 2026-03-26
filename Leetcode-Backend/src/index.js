@@ -20,7 +20,7 @@ const videoRouter = require("./routes/videoCreator");
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://leetcode-nu-olive.vercel.app"],
+    origin: ["http://localhost:5173", "https://leetcode-indol-psi.vercel.app"],
     credentials: true,
   }),
 );
