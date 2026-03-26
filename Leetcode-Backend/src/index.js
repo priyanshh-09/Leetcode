@@ -13,10 +13,21 @@ const cors = require("cors");
 const videoRouter = require("./routes/videoCreator");
 
 
-app.use(cors({
-  origin:'http://localhost:5173',
-  credentials:true
-}))
+// app.use(cors({
+//   origin:'http://localhost:5173',
+//   credentials:true
+// }))
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://leetcode-nine.vercel.app",
+      "https://leetcode-nu-olive.vercel.app",
+    ],
+    credentials: true,
+  }),
+);
 
 app.use(express.json()); 
 app.use(cookieParser());
