@@ -21,6 +21,8 @@ const register = async(req,res)=>{
       res.cookie("token", token, {
         httpOnly: true,
         maxAge: 60 * 60 * 1000,
+        secure: true, // required for HTTPS
+        sameSite: "none", // required for cross-origin
       });
 
       // res.cookie('token',token,{maxAge:60*60*1000});
@@ -71,6 +73,8 @@ const login = async(req,res)=>{
         res.cookie("token", token, {
           httpOnly: true,
           maxAge: 60 * 60 * 1000,
+          secure: true, // required for HTTPS
+          sameSite: "none", // required for cross-origin
         });
 
         // res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
@@ -99,7 +103,12 @@ const logout = async(req,res)=>{
         await redisclient.set(`token:${token}`,'Blocked')
         await redisclient.expireAt(`token:${token}`,payload.exp);
 
-        res.cookie("token",null,{expires: new Date(Date.now())});
+        // res.cookie("token",null,{expires: new Date(Date.now())});
+        res.cookie("token", null, {
+          expires: new Date(Date.now()),
+          secure: true,
+          sameSite: "none",
+        });
         res.send("Logged out Successfully");
     }
     catch(err){
@@ -125,6 +134,8 @@ const adminRegister = async(req,res)=>{
       res.cookie("token", token, {
         httpOnly: true,
         maxAge: 60 * 60 * 1000,
+        secure: true, // required for HTTPS
+        sameSite: "none", // required for cross-origin
       });
 
       // res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
