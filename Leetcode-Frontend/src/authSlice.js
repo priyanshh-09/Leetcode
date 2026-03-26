@@ -7,7 +7,7 @@ export const registerUser = createAsyncThunk(
     async(userData,{rejectWithValue})=>{
         try {
           const response = await axiosClient.post("/user/register", userData);
-          console.log(userData)
+          // console.log(userData)
           return response.data.user;
         } catch (err) {
           return rejectWithValue(
