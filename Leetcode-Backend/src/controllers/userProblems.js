@@ -127,8 +127,15 @@ const updateproblem = async(req,res)=>{
           }
         }
 
-        const newProblem = await Problem.findByIdAndUpdate(id,{...req.body},{runValidators:true},{new:true});
-         res.status(200).send("Successfully Updated",newProblem)
+       const newProblem = await Problem.findByIdAndUpdate(
+         id,
+         { ...req.body },
+         { runValidators: true, new: true },  
+       );
+        //  res.status(200).send("Successfully Updated",newProblem)
+         res
+           .status(200)
+           .json({ message: "Successfully Updated", problem: newProblem });
     }catch(err){
         res.status(500).send("Error :"+err);
      }

@@ -1,17 +1,17 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {z} from "zod";
+import { z } from "zod";
 import axiosClient from "../utils/axiosClient";
 import { useNavigate, useParams } from "react-router";
-import { useEffect } from "react";
-
+import { useEffect, useState } from "react";
 
 const problemSchema = z.object({
   title: z.string().min(1, "Title is Required"),
   description: z.string().min(1, "Description is Required"),
   difficulty: z.enum(["Easy", "Hard", "Medium"]),
   tags: z.enum(["array", "linkedlist", "graph", "Dp"]),
-  visibleTestCases: z.array(
+  visibleTestCases: z
+    .array(
       z.object({
         input: z.string().min(1, "Input is required"),
         output: z.string().min(1, "Output is required"),
@@ -25,31 +25,44 @@ const problemSchema = z.object({
       output: z.string().min(1, "Output is required"),
     }),
   ),
-  startcode: z.array(
-    z.object({
+  startcode: z
+    .array(
+      z.object({
         language: z.enum(["C++", "Java", "Javascript"]),
         initialcode: z.string().min(1, "Complete Code is Required"),
-      })
-    ).length(3, "All three Language required"),
-  referenceSolution: z.array(
-    z.object({
+      }),
+    )
+    .length(3, "All three Language required"),
+  referenceSolution: z
+    .array(
+      z.object({
         language: z.enum(["C++", "Java", "Javascript"]),
         completeCode: z.string().min(1, "Complete Code is Required"),
-      })
-    ).length(3, "All three Language required"),
-}); 
+      }),
+    )
+    .length(3, "All three Language required"),
+});
 
-
-const UpdateProblem = ()=>{
+const UpdateProblem = () => {
   const navigate = useNavigate();
   const { problemId } = useParams();
+
+  // ✅ Track loading and toast state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toast, setToast] = useState(null); // { type: "success"|"error", message: string }
+
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 3000); // auto-hide after 3s
+  };
 
   const {
     register,
     control,
     handleSubmit,
     formState: { errors },
-    reset
+    setValue,
+    reset,
   } = useForm({
     resolver: zodResolver(problemSchema),
     defaultValues: {
@@ -68,118 +81,101 @@ const UpdateProblem = ()=>{
     },
   });
 
+  const {
+    fields: visibleFields,
+    append: addVisible,
+    replace: replaceVisible,
+  } = useFieldArray({ control, name: "visibleTestCases" });
 
- const {
-   fields: visibleFields,
-   append: addVisible,
-   replace: replaceVisible,
- } = useFieldArray({
-   control,
-   name: "visibleTestCases",
- });
+  const {
+    fields: invisibleFields,
+    append: addInvisible,
+    replace: replaceInvisible,
+  } = useFieldArray({ control, name: "invisibleTestCases" });
 
- const {
-   fields: invisibleFields,
-   append: addInvisible,
-   replace: replaceInvisible,
- } = useFieldArray({
-   control,
-   name: "invisibleTestCases",
- });
+  useEffect(() => {
+    const fetchProblem = async () => {
+      try {
+        const res = await axiosClient.get(`/problem/get/${problemId}`);
+        const problem = res.data;
+
+        reset({
+          title: problem.title,
+          description: problem.description,
+          difficulty: problem.difficulty,
+          tags: problem.tags,
+          visibleTestCases: problem.visibleTestCases.map((tc) => ({
+            input: tc.input,
+            output: tc.output,
+            explanation: tc.explanation,
+          })),
+          invisibleTestCases: problem.invisibleTestCases.map((tc) => ({
+            input: tc.input,
+            output: tc.output,
+          })),
+          startcode: problem.startcode.map((s) => ({
+            language: s.language,
+            initialcode: s.initialcode,
+          })),
+          referenceSolution: problem.referenceSolution.map((s) => ({
+            language: s.language,
+            completeCode: s.completeCode,
+          })),
+        });
+
+        // ✅ Explicitly set language fields AFTER reset
+        ["C++", "Java", "Javascript"].forEach((lang, i) => {
+          setValue(`startcode.${i}.language`, lang);
+          setValue(`referenceSolution.${i}.language`, lang);
+        });
+      } catch (err) {
+        console.error("Failed to fetch problem:", err);
+      }
+    };
+
+    fetchProblem();
+  }, [problemId]);
+ 
+useEffect(() => {
+  ["C++", "Java", "Javascript"].forEach((lang, i) => {
+    setValue(`startcode.${i}.language`, lang);
+    setValue(`referenceSolution.${i}.language`, lang);
+  });
+}, []); // runs once on mount
 
 
- useEffect(() => {
-   const fetchProblem = async () => {
-     try {
-        console.log("Form errors:", errors);
-       const res = await axiosClient.get(`/problem/get/${problemId}`);
-       const problem = res.data; 
-        
-        console.log(
-          "languages:",
-          problem.startcode.map((s) => s.language),
-        );
-       console.log("startcode[0] keys:", Object.keys(problem.startcode[0]));
-       console.log(
-         "referenceSolution[0] keys:",
-         Object.keys(problem.referenceSolution[0]),
-       );
-
-
-       replaceVisible(
-         problem.visibleTestCases.map((tc) => ({
-           input: tc.input,
-           output: tc.output,
-           explanation: tc.explanation,
-         })),
-       );
-
-       replaceInvisible(
-         problem.invisibleTestCases.map((tc) => ({
-           input: tc.input,
-           output: tc.output,
-         })),
-       );
-
-       reset({
-         title: problem.title,
-         description: problem.description,
-         difficulty: problem.difficulty,
-         tags: problem.tags,
-         visibleTestCases: problem.visibleTestCases.map((tc) => ({
-           input: tc.input,
-           output: tc.output,
-           explanation: tc.explanation,
-         })),
-         invisibleTestCases: problem.invisibleTestCases.map((tc) => ({
-           input: tc.input,
-           output: tc.output,
-         })),
-         startcode: problem.startcode.map((s) => ({
-           language: s.language,
-           initialcode: s.initialcode, // ✅ no _id
-         })),
-         referenceSolution: problem.referenceSolution.map((s) => ({
-           language: s.language,
-           completeCode: s.completeCode, // ✅ no _id
-         })),
-       });
-     } catch (err) {
-       console.error("Failed to fetch problem:", err);
-     }
-   };
-
-   fetchProblem();
- }, [problemId]);
 
   const onSubmit = async (data) => {
+    setIsSubmitting(true);
     try { 
-      await axiosClient.post(`/problem/update/${problemId}`, data);
-      console.log("Updated ")
-      navigate("/");
+      await axiosClient.put(`/problem/update/${problemId}`, data);
+      showToast("success", "Problem updated successfully!");
+      setTimeout(() => navigate("/"), 1500); // small delay so user sees toast
     } catch (err) {
-      console.error("Error: "+err);
+      console.error("Update failed:", err);
+      showToast("error", "Failed to update problem. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-base-200 p-6">
+      {/* ✅ Toast Notification */}
+      {toast && (
+        <div className="toast toast-top toast-center z-50">
+          <div
+            className={`alert ${
+              toast.type === "success" ? "alert-success" : "alert-error"
+            }`}
+          >
+            <span>{toast.message}</span>
+          </div>
+        </div>
+      )}
+
       <form
-        onSubmit={handleSubmit(
-          (data) => {
-            console.log("✅ VALID - data:", data); // fires if validation passes
-            onSubmit(data);
-          },
-          (errors) => {
-            console.log("❌ INVALID - errors:", errors);
-            errors.startcode?.forEach((item, i) => {
-              console.log(`startcode[${i}]:`, item);
-            });
-            errors.referenceSolution?.forEach((item, i) => {
-              console.log(`referenceSolution[${i}]:`, item);
-            });
-          },
-        )}
+        onSubmit={handleSubmit(onSubmit)}
         className="max-w-4xl mx-auto bg-base-100 p-6 rounded-xl shadow space-y-6"
       >
         <h1 className="text-2xl font-bold">Update Problem Here</h1>
@@ -281,12 +277,19 @@ const UpdateProblem = ()=>{
         <div>
           <h2 className="font-semibold mb-2">Start Code</h2>
           {["C++", "Java", "Javascript"].map((lang, i) => (
-            <textarea
-              key={lang}
-              {...register(`startcode.${i}.initialcode`)}
-              placeholder={`${lang} Starter Code`}
-              className="textarea textarea-bordered w-full mb-2"
-            />
+            <div key={lang}>
+              <label className="label-text font-medium block mb-1">
+                {lang}
+              </label>
+              <textarea
+                {...register(`startcode.${i}.initialcode`)}
+                placeholder={`${lang} Starter Code`}
+                className="textarea textarea-bordered w-full mb-2"
+              />
+              <p className="text-error text-sm">
+                {errors.startcode?.[i]?.initialcode?.message}
+              </p>
+            </div>
           ))}
         </div>
 
@@ -294,31 +297,45 @@ const UpdateProblem = ()=>{
         <div>
           <h2 className="font-semibold mb-2">Reference Solution</h2>
           {["C++", "Java", "Javascript"].map((lang, i) => (
-            <textarea
-              key={lang}
-              {...register(`referenceSolution.${i}.completeCode`)}
-              placeholder={`${lang} Complete Solution`}
-              className="textarea textarea-bordered w-full mb-2"
-            />
+            <div key={lang}>
+              <label className="label-text font-medium block mb-1">
+                {lang}
+              </label>
+              <textarea
+                {...register(`referenceSolution.${i}.completeCode`)}
+                placeholder={`${lang} Complete Solution`}
+                className="textarea textarea-bordered w-full mb-2"
+              />
+              <p className="text-error text-sm">
+                {errors.referenceSolution?.[i]?.completeCode?.message}
+              </p>
+            </div>
           ))}
         </div>
 
-        {/* Submit */}
+        {/* ✅ Submit button with loading spinner */}
+        {Object.keys(errors).length > 0 && (
+          <div className="bg-red-100 p-4 rounded text-sm">
+            <pre>{JSON.stringify(errors, null, 2)}</pre>
+          </div>
+        )}
         <button
           type="submit"
           className="btn btn-primary w-full"
-          onClick={() => console.log("errors:", errors)}
+          disabled={isSubmitting}
         >
-          Update Problem
+          {isSubmitting ? (
+            <>
+              <span className="loading loading-spinner loading-sm"></span>
+              Updating...
+            </>
+          ) : (
+            "Update Problem"
+          )}
         </button>
       </form>
     </div>
   );
-}
+};
 
 export default UpdateProblem;
-
-
-
-
-
