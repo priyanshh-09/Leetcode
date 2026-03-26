@@ -8,11 +8,6 @@ const handlesubmit = async (req, res) => {
     const problemId = req.params.id;
     let { code, language } = req.body;
 
-    // console.log("=== SUBMIT START ===");
-    // console.log("userId:", userId);
-    // console.log("problemId:", problemId);
-    // console.log("language:", language);
-    // console.log("code length:", code?.length);
 
     if (!userId || !problemId || !code || !language) {
       return res.status(400).send("Some fields are missing");

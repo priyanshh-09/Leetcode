@@ -73,11 +73,11 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-base-200">
       {/* Header */}
-      <header className="navbar bg-base-100 shadow-md px-4 md:px-6">
+      <header className="navbar bg-base-100 shadow-md px-4 md:px-6 sticky top-0 z-50">
         {/* Left Logo */}
         <div className="flex-1">
-          <Link to="/" className="text-2xl font-bold text-primary">
-            LeetCode
+          <Link to="/" className="text-3xl font-bold text-primary">
+            LEETCODE
           </Link>
         </div>
 
@@ -85,7 +85,7 @@ export default function Home() {
         <div className="flex items-center gap-4 md:gap-8">
           {/* Create Problem (Only Admin) */}
           {user?.role === "admin" && (
-            <Link to="/admin" className="btn btn-primary btn-sm md:btn-md">
+            <Link to="/admin" className="btn btn-primary btn-sm md:btn-md ">
               Admin's Home
             </Link>
           )}
@@ -126,44 +126,48 @@ export default function Home() {
       </header>
       {/* Main */}
       <main className="p-6">
-        <h2 className="text-3xl font-bold">Welcome to LeetCode 🚀</h2>
-        <div className="flex flex-wrap mt-6 gap-2 p-3 w-[80%] rounded-xl shadow justify-between">
-          <select
-            className="select select-bordered"
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-          >
-            <option value="all">All Problems</option>
-            <option value="solved">Solved Problems</option>
-          </select>
+        <div className="sticky top-16 z-40 bg-base-200 pb-4">
+          <h2 className="text-4xl mt-2 font-bold">Welcome to LeetCode 🚀</h2>
+          <div className="flex flex-wrap mt-6 gap-4 p-3 w-[80%] rounded-xl shadow justify-between">
+            <select
+              className="select select-bordered"
+              value={filters.status}
+              onChange={(e) =>
+                setFilters({ ...filters, status: e.target.value })
+              }
+            >
+              <option value="all">All Problems</option>
+              <option value="solved">Solved Problems</option>
+            </select>
 
-          <select
-            className="select select-bordered"
-            value={filters.difficulty}
-            onChange={(e) =>
-              setFilters({ ...filters, difficulty: e.target.value })
-            }
-          >
-            <option value="all">All Difficulties</option>
-            <option value="Easy">Easy</option>
-            <option value="Medium">Medium</option>
-            <option value="Hard">Hard</option>
-          </select>
+            <select
+              className="select select-bordered"
+              value={filters.difficulty}
+              onChange={(e) =>
+                setFilters({ ...filters, difficulty: e.target.value })
+              }
+            >
+              <option value="all">All Difficulties</option>
+              <option value="Easy">Easy</option>
+              <option value="Medium">Medium</option>
+              <option value="Hard">Hard</option>
+            </select>
 
-          <select
-            className="select select-bordered"
-            value={filters.tag}
-            onChange={(e) => setFilters({ ...filters, tag: e.target.value })}
-          >
-            <option value="all">All Tags</option>
-            <option value="array">Array</option>
-            <option value="linkedlist">LinkedList</option>
-            <option value="graph">Graph</option>
-            <option value="Dp">Dp</option>
-          </select>
+            <select
+              className="select select-bordered"
+              value={filters.tag}
+              onChange={(e) => setFilters({ ...filters, tag: e.target.value })}
+            >
+              <option value="all">All Tags</option>
+              <option value="array">Array</option>
+              <option value="linkedlist">LinkedList</option>
+              <option value="graph">Graph</option>
+              <option value="Dp">Dp</option>
+            </select>
+          </div>
         </div>
 
-        <div className="grid gap-2 mt-10 w-[90%]">
+        <div className="grid gap-3 mt-2 w-[90%]">
           {filteredProblem.map((problem) => {
             return (
               <div
@@ -185,7 +189,7 @@ export default function Home() {
                       {problem.title}
                     </h2>
                     {solvedproblems.some((sp) => sp._id === problem._id) && (
-                      <div className="badge badge-success gap-2">Solved</div>
+                      <div className="badge badge-success gap-2 font-bold">Solved</div>
                     )}
                   </div>
 
@@ -199,13 +203,13 @@ export default function Home() {
                           : problem.difficulty === "Medium"
                             ? "badge-warning"
                             : "badge-error"
-                      }`}
+                      } font-bold`}
                     >
                       {problem.difficulty}
                     </div>
 
                     {/* Tag */}
-                    <div className="badge badge-outline text-primary">
+                    <div className="badge badge-outline badge-warning">
                       {problem.tags}
                     </div>
                   </div>
@@ -214,6 +218,7 @@ export default function Home() {
             );
           })}
         </div>
+
         {/* PAGINATION */}
         <div className="flex justify-center items-center gap-4 mt-8">
           <button

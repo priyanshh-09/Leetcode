@@ -27,6 +27,37 @@ export default function ProblemPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  //resizer code 
+  const [leftWidth, setLeftWidth] = useState(50);
+  const isResizing = useRef(false);
+
+  const handleMouseDown = () => {
+    isResizing.current = true;
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isResizing.current) return;
+      const container = document.getElementById("panel-container");
+      const containerRect = container.getBoundingClientRect();
+      const newLeftWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+      if (newLeftWidth > 20 && newLeftWidth < 80) {
+        setLeftWidth(newLeftWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      isResizing.current = false;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
+
 
 
 
@@ -159,17 +190,24 @@ export default function ProblemPage() {
     switch (activeLeftTab) {
       case "Description":
         return (
-          <div className="space-y-6">
+          <div
+            className="space-y-6"
+            style={{ fontFamily: "'Inter', sans-serif" }}
+          >
             <div>
-              <p className="whitespace-pre-line text-sm leading-relaxed">
+              <p
+                className="text-sm leading-7 tracking-wide text-base-content/80 whitespace-pre-line"
+                style={{ fontFamily: "'Inter', sans-serif", lineHeight: "1.8" }}
+              >
                 {problem.description}
               </p>
             </div>
 
-            {/* Examples / Visible Testcases */}
             {problem.visibleTestCases?.length > 0 && (
               <div>
-                <h2 className="font-semibold text-lg mb-3">Examples</h2>
+                <h2 className="font-semibold text-lg mb-3 tracking-tight">
+                  Examples
+                </h2>
 
                 <div className="space-y-4">
                   {problem.visibleTestCases.map((tc, index) => (
@@ -177,26 +215,38 @@ export default function ProblemPage() {
                       key={index}
                       className="border rounded-xl p-4 bg-base-200"
                     >
-                      <h3 className="font-semibold mb-2">
+                      <h3 className="font-semibold mb-3 text-sm text-base-content/60 uppercase tracking-widest">
                         Example {index + 1}
                       </h3>
 
-                      <div className="text-sm space-y-1 font-mono">
-                        <p>
-                          <strong>Input: </strong>
-                          {tc.input}
-                        </p>
+                      <div className="text-sm space-y-2">
+                        <div className="flex gap-2">
+                          <span className="font-semibold min-w-[80px]">
+                            Input:
+                          </span>
+                          <code className="bg-base-300 px-2 py-0.5 rounded text-sm font-mono">
+                            {tc.input}
+                          </code>
+                        </div>
 
-                        <p>
-                          <strong>Output: </strong>
-                          {tc.output}
-                        </p>
+                        <div className="flex gap-2">
+                          <span className="font-semibold min-w-[80px]">
+                            Output:
+                          </span>
+                          <code className="bg-base-300 px-2 py-0.5 rounded text-sm font-mono">
+                            {tc.output}
+                          </code>
+                        </div>
 
                         {tc.explanation && (
-                          <p className="text-gray-500">
-                            <strong>Explanation: </strong>
-                            {tc.explanation}
-                          </p>
+                          <div className="flex gap-2 mt-2 pt-2 border-t border-base-300">
+                            <span className="font-semibold min-w-[80px]">
+                              Explanation:
+                            </span>
+                            <span className="text-base-content/70 leading-relaxed">
+                              {tc.explanation}
+                            </span>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -219,171 +269,171 @@ export default function ProblemPage() {
         );
 
       case "Solutions":
-  if (!problem?.referenceSolution?.length) {
-    return <p>No solutions available.</p>;
-  }
+        if (!problem?.referenceSolution?.length) {
+          return <p>No solutions available.</p>;
+        }
 
-  return (
-    <div className="space-y-6">
-      {Array.isArray(problem.referenceSolution) &&
-        problem.referenceSolution.map((sol, index) => (
-          <div key={index} className="border rounded-xl p-4 bg-base-200">
-            <h3 className="font-bold mb-2">{sol.language} Solution</h3>
+        return (
+          <div className="space-y-6">
+            {Array.isArray(problem.referenceSolution) &&
+              problem.referenceSolution.map((sol, index) => (
+                <div key={index} className="border rounded-xl p-4 bg-base-200">
+                  <h3 className="font-bold mb-2">{sol.language} Solution</h3>
 
-            <Editor
-              height="300px"
-              language={
-                (sol.language || "").toLowerCase() === "c++"
-                  ? "cpp"
-                  : (sol.language || "").toLowerCase()
-              }
-              value={(sol.completeCode || "").replace(/\\n/g, "\n")}
-              theme="vs-dark"
-              options={{
-                readOnly: true,
-                minimap: { enabled: false },
-                fontSize: 14,
-                automaticLayout: true,
-              }}
-            />
+                  <Editor
+                    height="300px"
+                    language={
+                      (sol.language || "").toLowerCase() === "c++"
+                        ? "cpp"
+                        : (sol.language || "").toLowerCase()
+                    }
+                    value={(sol.completeCode || "").replace(/\\n/g, "\n")}
+                    theme="vs-dark"
+                    options={{
+                      readOnly: true,
+                      minimap: { enabled: false },
+                      fontSize: 14,
+                      automaticLayout: true,
+                    }}
+                  />
+                </div>
+              ))}
           </div>
-        ))}
-    </div>
-  );
-       
-          
-     case "Submission":
-      if (submissionLoading) {
-        return <p className="mt-6">Loading submissions...</p>;
-      }
+        );
 
-      if (submissionError) {
-        return <p className="text-red-500 mt-6">{submissionError}</p>;
-      }
+      case "Submission":
+        if (submissionLoading) {
+          return <p className="mt-6">Loading submissions...</p>;
+        }
 
-      if (submissions.length === 0) {
-        return <p className="mt-6">No submissions yet.</p>;
-      }
+        if (submissionError) {
+          return <p className="text-red-500 mt-6">{submissionError}</p>;
+        }
 
-  return (
-    <div className="mt-6">
-      <table className="table table-zebra w-full">
-        <thead>
-          <tr>
-            <th>Status</th>
-            <th>Runtime</th>
-            <th>Memory</th>
-            <th>Test Cases</th>
-            <th>Action</th>
-          </tr>
-        </thead>
+        if (submissions.length === 0) {
+          return <p className="mt-6">No submissions yet.</p>;
+        }
 
-        <tbody>
-          {submissions.map((sub) => (
-            <tr key={sub._id}>
-              <td>
-                <span
-                  className={`badge ${
-                    sub.status === "Accepted" ? "badge-success" : "badge-error"
-                  }`}
-                >
-                  {sub.status}
-                </span>
-              </td>
+        return (
+          <div className="mt-6">
+            <table className="table table-zebra w-full">
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Runtime</th>
+                  <th>Memory</th>
+                  <th>Test Cases</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
 
-              <td>{sub.runtime} ms</td>
-              <td>{sub.memory} KB</td>
-              <td>
-                {sub.testCasePassed ?? sub.testCasesPassed ?? 0} /{" "}
-                {sub.totalTestCases ?? 0}
-              </td>
+              <tbody>
+                {submissions.map((sub) => (
+                  <tr key={sub._id}>
+                    <td>
+                      <span
+                        className={`badge ${
+                          sub.status === "Accepted"
+                            ? "badge-success"
+                            : "badge-error"
+                        }`}
+                      >
+                        {sub.status}
+                      </span>
+                    </td>
 
-              <td>
-                <button
-                  className="btn btn-sm btn-primary"
-                  onClick={() => {
-                    // console.log(sub);
-                    setSelectedSubmission(sub);
-                  }}
-                >
-                  Code
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      {/* PAGINATION */}
-      <div className="flex justify-center gap-4 mt-6">
-        <button
-          className="btn btn-sm"
-          disabled={page === 1}
-          onClick={() => setPage((prev) => prev - 1)}
-        >
-          Previous
-        </button>
+                    <td>{sub.runtime} ms</td>
+                    <td>{sub.memory} KB</td>
+                    <td>
+                      {sub.testCasePassed ?? sub.testCasesPassed ?? 0} /{" "}
+                      {sub.totalTestCases ?? 0}
+                    </td>
 
-        <span className="font-semibold">
-          Page {page} of {totalPages}
-        </span>
-
-        <button
-          className="btn btn-sm"
-          disabled={page === totalPages}
-          onClick={() => setPage((prev) => prev + 1)}
-        >
-          Next
-        </button>
-      </div>
-      {/* Code Modal */}
-      {selectedSubmission && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 w-3/4 max-h-[80vh] overflow-auto rounded-lg">
-            <h3 className="text-xl font-bold mb-4">
-              Submitted Code ({selectedSubmission.language})
-            </h3>
-
-            <Editor
-              height="60vh"
-              language={
-                selectedSubmission.language === "c++"
-                  ? "cpp"
-                  : selectedSubmission.language
-              }
-              value={selectedSubmission.code}
-              theme="vs-dark"
-              options={{
-                readOnly: true,
-                minimap: { enabled: false },
-                fontSize: 14,
-                automaticLayout: true,
-              }}
-            />
-
-            <div className="text-right mt-4">
+                    <td>
+                      <button
+                        className="btn btn-sm btn-primary"
+                        onClick={() => {
+                          // console.log(sub);
+                          setSelectedSubmission(sub);
+                        }}
+                      >
+                        Code
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {/* PAGINATION */}
+            <div className="flex justify-center gap-4 mt-6">
               <button
                 className="btn btn-sm"
-                onClick={() => setSelectedSubmission(null)}
+                disabled={page === 1}
+                onClick={() => setPage((prev) => prev - 1)}
               >
-                Close
+                Previous
+              </button>
+
+              <span className="font-semibold">
+                Page {page} of {totalPages}
+              </span>
+
+              <button
+                className="btn btn-sm"
+                disabled={page === totalPages}
+                onClick={() => setPage((prev) => prev + 1)}
+              >
+                Next
               </button>
             </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-        
-     case "Pie-AskMe":
-      return(
-          <div className="prose max-w-none">
-              <h2 className="text-xl font-bold mb-4">Chat With Pie</h2>
-              <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                <ChatAi problem={problem}/>
+            {/* Code Modal */}
+            {selectedSubmission && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                <div className="bg-white p-6 w-3/4 max-h-[80vh] overflow-auto rounded-lg">
+                  <h3 className="text-xl font-bold mb-4">
+                    Submitted Code ({selectedSubmission.language})
+                  </h3>
+
+                  <Editor
+                    height="60vh"
+                    language={
+                      selectedSubmission.language === "c++"
+                        ? "cpp"
+                        : selectedSubmission.language
+                    }
+                    value={selectedSubmission.code}
+                    theme="vs-dark"
+                    options={{
+                      readOnly: true,
+                      minimap: { enabled: false },
+                      fontSize: 14,
+                      automaticLayout: true,
+                    }}
+                  />
+
+                  <div className="text-right mt-4">
+                    <button
+                      className="btn btn-sm"
+                      onClick={() => setSelectedSubmission(null)}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
               </div>
+            )}
           </div>
-        
-      )
+        );
+
+      case "Pie-AskMe":
+        return (
+          <div className="prose max-w-none">
+            <h2 className="text-xl font-bold mb-4">Chat With Pie</h2>
+            <div className="whitespace-pre-wrap text-sm leading-relaxed">
+              <ChatAi problem={problem} />
+            </div>
+          </div>
+        );
       default:
         return null;
     }
@@ -406,6 +456,9 @@ export default function ProblemPage() {
              fontSize: 14,
              minimap: { enabled: false },
              automaticLayout: true,
+             lineHeight: 24,        // ✅ more space between lines
+             padding: { top: 0 }, // ✅ breathing room at top
+             letterSpacing: 0.5,   // ✅ slight letter spacing
            }}
          />
        );
@@ -654,35 +707,33 @@ export default function ProblemPage() {
   /* ================= UI ================= */
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-hidden">
       {/* HEADER */}
-      <div className="flex justify-between items-center bg-base-200 px-6 py-3 border-b">
-        {/* LEFT TABS */}
+      <div className="flex justify-between items-center bg-base-200 px-6 py-3 border-b sticky top-0 z-50 shrink-0">
         <div className="flex gap-10">
-          {["Description", "Editorial", "Solutions", "Submission","Pie-AskMe"].map(
-            (tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveLeftTab(tab)}
-                className={`btn btn-sm ${
-                  activeLeftTab === tab ? "btn-primary" : "btn-ghost"
-                }`}
-              >
-                {tab}
-              </button>
-            ),
-          )}
+          {[
+            "Description",
+            "Editorial",
+            "Solutions",
+            "Submission",
+            "Pie-AskMe",
+          ].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveLeftTab(tab)}
+              className={`btn btn-sm ${activeLeftTab === tab ? "btn-primary" : "btn-ghost"} font-bold`}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
 
-        {/* RIGHT TABS */}
         <div className="flex gap-10">
           {["Code", "Testcase", "Result"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveRightTab(tab)}
-              className={`btn btn-sm ${
-                activeRightTab === tab ? "btn-secondary" : "btn-ghost"
-              }`}
+              className={`btn btn-sm ${activeRightTab === tab ? "btn-secondary" : "btn-ghost"} font-bold`}
             >
               {tab}
             </button>
@@ -691,40 +742,58 @@ export default function ProblemPage() {
       </div>
 
       {/* BODY */}
-      <div className="flex flex-1 overflow-hidden">
+      <div id="panel-container" className="flex flex-1 overflow-hidden">
         {/* LEFT PANEL */}
-        <div className="w-1/2 p-6 overflow-y-auto border-r bg-base-100">
+        <div
+          style={{ width: `${leftWidth}%` }}
+          className="flex-shrink-0 p-6 overflow-y-auto border-r bg-base-100 h-full"
+        >
           {activeLeftTab === "Description" && (
             <>
-              <h1 className="text-2xl font-bold mb-3">{problem.title}</h1>
-
+              <h1 className="text-3xl font-bold mb-5">{problem.title}</h1>
               <div className="mb-4 flex gap-2 flex-wrap">
-                <span className="badge badge-outline">
+                <span
+                  className={`badge ${
+                    problem.difficulty === "Easy"
+                      ? "badge-success"
+                      : problem.difficulty === "Medium"
+                        ? "badge-warning"
+                        : "badge-error"
+                  } font-bold`}
+                >
                   {problem.difficulty}
                 </span>
-
                 {Array.isArray(problem.tags) ? (
                   problem.tags.map((tag) => (
-                    <span key={tag} className="badge badge-outline">
+                    <span key={tag} className="badge badge-outline font-bold">
                       {tag}
                     </span>
                   ))
                 ) : problem.tags ? (
-                  <span className="badge badge-outline">{problem.tags}</span>
+                  <span className="badge badge-outline badge-warning font-bold">
+                    {problem.tags}
+                  </span>
                 ) : null}
               </div>
             </>
           )}
-
           {renderLeftContent()}
         </div>
 
+        {/* DRAGGABLE RESIZER */}
+        <div
+          onMouseDown={handleMouseDown}
+          className="w-1 bg-base-300 hover:bg-primary active:bg-primary cursor-col-resize flex-shrink-0 transition-colors duration-150"
+        />
+
         {/* RIGHT PANEL */}
-        <div className="w-1/2 flex flex-col bg-base-200">
-          {/* LANGUAGE SELECTOR */}
-          <div className="flex justify-between items-center p-3 border-b bg-base-100">
-            {/* LANGUAGE BUTTONS */}
-            <div className="flex gap-3">
+        <div
+          style={{ width: `${100 - leftWidth}%` }}
+          className="flex flex-col bg-base-200 flex-shrink-0 h-full overflow-hidden"
+        >
+          {/* LANGUAGE SELECTOR - sticky inside right panel */}
+          <div className="flex justify-between items-center p-3 border-b bg-base-100 flex-shrink-0">
+            <div className="flex gap-5">
               {[
                 { label: "C++", value: "cpp" },
                 { label: "Java", value: "java" },
@@ -737,23 +806,21 @@ export default function ProblemPage() {
                     selectedLanguage === lang.value
                       ? "btn-accent"
                       : "btn-outline"
-                  }`}
+                  } font-bold`}
                 >
                   {lang.label}
                 </button>
               ))}
             </div>
 
-            {/* RUN + SUBMIT BUTTONS */}
-            <div className="flex gap-2">
+            <div className="flex gap-4">
               <button
                 onClick={handleRunCode}
                 disabled={running}
-                className="btn btn-success btn-sm"
+                className="btn btn-success btn-sm font-bold"
               >
                 {running ? "Running..." : "Run"}
               </button>
-
               <button
                 onClick={handleSubmitCode}
                 disabled={submitting}
@@ -765,7 +832,7 @@ export default function ProblemPage() {
           </div>
 
           {/* RIGHT CONTENT */}
-          <div className="flex-1 p-2">
+          <div className="flex-1 overflow-y-auto p-2">
             {!selectedSubmission && renderRightContent()}
           </div>
         </div>

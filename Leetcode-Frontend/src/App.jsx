@@ -12,7 +12,9 @@ import CreateProblem from "./Components/CreateProblem";
 import DeleteProblem from "./Components/DeleteProblem"
 import ProblemPage from "./pages/ProblemPage";
 import UploadandDeleteProblem from "./Components/UploadandDeleteProblem";
-import UploadProblem from "./Components/UploadProblem";
+import UploadProblem from "./Components/UploadProblem"; 
+import UpdateProblems from "./Components/UpdateProblems"; 
+import UpdateProblem from "./Components/UpdateProblem";
 // const User = require("../../src/models/user");
 
 function App() {
@@ -91,6 +93,26 @@ function App() {
            element={
              isAuthenticated && user?.role === "admin" ? (
                <UploadProblem />
+             ) : (
+               <Navigate to="/" />
+             )
+           }
+         ></Route>
+         <Route
+           path="/admin/updateproblems"
+           element={
+             isAuthenticated && user?.role === "admin" ? (
+               <UpdateProblems />
+             ) : (
+               <Navigate to="/" />
+             )
+           }
+         ></Route>
+         <Route
+           path="/admin/updateproblem/:problemId"
+           element={
+             isAuthenticated && user?.role === "admin" ? (
+               <UpdateProblem />
              ) : (
                <Navigate to="/" />
              )

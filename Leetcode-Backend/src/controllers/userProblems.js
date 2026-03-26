@@ -158,13 +158,10 @@ const fetchproblem = async(req,res)=>{
      if (!id) {
        return res.status(400).send("id is not valid");
      }
-      
-    //  console.log("ID RECEIVED:", id);
+ 
      const problem = await Problem.findById(id).select(
-       "title description difficulty tags visibleTestCases startcode referenceSolution",
+       "title description difficulty tags visibleTestCases invisibleTestCases startcode referenceSolution",
      );
-      // console.log("FOUND PROBLEM:", problem);
-     //video content
        
      if(!problem){
        return res.status(404).send("Problem is Missing")

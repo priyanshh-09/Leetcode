@@ -2,7 +2,8 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {z} from "zod";
 import axiosClient from "../utils/axiosClient";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import { useEffect } from "react";
 
 
 const problemSchema = z.object({
@@ -39,14 +40,16 @@ const problemSchema = z.object({
 }); 
 
 
-export default function CreateProblem() {
+const UpdateProblem = ()=>{
   const navigate = useNavigate();
+  const { problemId } = useParams();
 
   const {
     register,
     control,
     handleSubmit,
     formState: { errors },
+    reset
   } = useForm({
     resolver: zodResolver(problemSchema),
     defaultValues: {
@@ -65,21 +68,94 @@ export default function CreateProblem() {
     },
   });
 
-  const { fields: visibleFields, append: addVisible } = useFieldArray({
-    control,
-    name: "visibleTestCases",
-  });
 
-  const { fields: invisibleFields, append: addInvisible } = useFieldArray({
-    control,
-    name: "invisibleTestCases",
-  });
+ const {
+   fields: visibleFields,
+   append: addVisible,
+   replace: replaceVisible,
+ } = useFieldArray({
+   control,
+   name: "visibleTestCases",
+ });
+
+ const {
+   fields: invisibleFields,
+   append: addInvisible,
+   replace: replaceInvisible,
+ } = useFieldArray({
+   control,
+   name: "invisibleTestCases",
+ });
+
+
+ useEffect(() => {
+   const fetchProblem = async () => {
+     try {
+        console.log("Form errors:", errors);
+       const res = await axiosClient.get(`/problem/get/${problemId}`);
+       const problem = res.data; 
+        
+        console.log(
+          "languages:",
+          problem.startcode.map((s) => s.language),
+        );
+       console.log("startcode[0] keys:", Object.keys(problem.startcode[0]));
+       console.log(
+         "referenceSolution[0] keys:",
+         Object.keys(problem.referenceSolution[0]),
+       );
+
+
+       replaceVisible(
+         problem.visibleTestCases.map((tc) => ({
+           input: tc.input,
+           output: tc.output,
+           explanation: tc.explanation,
+         })),
+       );
+
+       replaceInvisible(
+         problem.invisibleTestCases.map((tc) => ({
+           input: tc.input,
+           output: tc.output,
+         })),
+       );
+
+       reset({
+         title: problem.title,
+         description: problem.description,
+         difficulty: problem.difficulty,
+         tags: problem.tags,
+         visibleTestCases: problem.visibleTestCases.map((tc) => ({
+           input: tc.input,
+           output: tc.output,
+           explanation: tc.explanation,
+         })),
+         invisibleTestCases: problem.invisibleTestCases.map((tc) => ({
+           input: tc.input,
+           output: tc.output,
+         })),
+         startcode: problem.startcode.map((s) => ({
+           language: s.language,
+           initialcode: s.initialcode, // ✅ no _id
+         })),
+         referenceSolution: problem.referenceSolution.map((s) => ({
+           language: s.language,
+           completeCode: s.completeCode, // ✅ no _id
+         })),
+       });
+     } catch (err) {
+       console.error("Failed to fetch problem:", err);
+     }
+   };
+
+   fetchProblem();
+ }, [problemId]);
 
   const onSubmit = async (data) => {
-    try {
-        // console.log("FORM SUBMITTED", data);
-        // console.log(JSON.stringify(data.referenceSolution, null, 2));
-      await axiosClient.post("/problem/create", data);
+    try { 
+      await axiosClient.post(`/problem/update/${problemId}`, data);
+      console.log("Updated ")
       navigate("/");
     } catch (err) {
       console.error("Error: "+err);
@@ -89,10 +165,24 @@ export default function CreateProblem() {
   return (
     <div className="min-h-screen bg-base-200 p-6">
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(
+          (data) => {
+            console.log("✅ VALID - data:", data); // fires if validation passes
+            onSubmit(data);
+          },
+          (errors) => {
+            console.log("❌ INVALID - errors:", errors);
+            errors.startcode?.forEach((item, i) => {
+              console.log(`startcode[${i}]:`, item);
+            });
+            errors.referenceSolution?.forEach((item, i) => {
+              console.log(`referenceSolution[${i}]:`, item);
+            });
+          },
+        )}
         className="max-w-4xl mx-auto bg-base-100 p-6 rounded-xl shadow space-y-6"
       >
-        <h1 className="text-2xl font-bold">Create Problem</h1>
+        <h1 className="text-2xl font-bold">Update Problem Here</h1>
 
         {/* Title */}
         <input
@@ -214,13 +304,19 @@ export default function CreateProblem() {
         </div>
 
         {/* Submit */}
-        <button type="submit" className="btn btn-primary w-full">
-          Create Problem
+        <button
+          type="submit"
+          className="btn btn-primary w-full"
+          onClick={() => console.log("errors:", errors)}
+        >
+          Update Problem
         </button>
       </form>
     </div>
   );
 }
+
+export default UpdateProblem;
 
 
 

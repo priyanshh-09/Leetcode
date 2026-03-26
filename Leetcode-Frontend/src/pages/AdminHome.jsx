@@ -16,12 +16,12 @@ export default function AdminHome() {
     },
     {
       id: "update",
-      title: "Update Problem",
+      title: "Update Problems",
       description: "Edit existing problem and their details",
       icon: Edit,
       color: "btn-warning",
       bgColor: "bg-warning/10",
-      route: "/admin/update",
+      route: "/admin/updateproblems",
     },
     {
       id: "delete",
