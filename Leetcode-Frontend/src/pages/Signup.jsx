@@ -25,7 +25,7 @@ export default function Signup() {
     formState: { errors },
   } = useForm({resolver:zodResolver(signupSchema)});
 
-  const {isAuthenticated,loading}= useSelector((state)=>state.auth)
+  const {isAuthenticated,loading,error}= useSelector((state)=>state.auth)
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -116,6 +116,11 @@ export default function Signup() {
                 {loading ? "Signing Up..." : "Sign Up"}
               </button>
             </div>
+            {error && (
+              <div className="alert alert-error mt-2">
+                <span>{error}</span>
+              </div>
+            )}
 
             <div className="mt-4 text-center">
               <p className="text-sm text-gray-500">

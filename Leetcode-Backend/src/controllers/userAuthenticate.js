@@ -7,17 +7,21 @@ const jwt = require('jsonwebtoken')
 
 
 const register = async(req,res)=>{
-    try{
-      //  console.log("RAW BODY 👉", req.body);
-      validate(req.body)
-      // console.log("✅ Passed custom validation");
-      const {firstName, emailId, password } = req.body;
-      req.body.password = await bcrypt.hash(password,10);
-      req.body.role="user"
-      // console.log("👉 Before DB create", req.body);
+    try {
+      console.log("RAW BODY 👉", req.body);
+      validate(req.body);
+      console.log("✅ Passed custom validation");
+      const { firstName, emailId, password } = req.body;
+      req.body.password = await bcrypt.hash(password, 10);
+      req.body.role = "user";
+      console.log("👉 Before DB create", req.body);
       const user = await User.create(req.body);
 
-      const token = jwt.sign({_id:user._id,emailId:emailId,role:'user'},process.env.JWT_KEY,{expiresIn:60*60})
+      const token = jwt.sign(
+        { _id: user._id, emailId: emailId, role: "user" },
+        process.env.JWT_KEY,
+        { expiresIn: 60 * 60 },
+      );
       res.cookie("token", token, {
         httpOnly: true,
         maxAge: 60 * 60 * 1000,
@@ -26,19 +30,21 @@ const register = async(req,res)=>{
       });
 
       // res.cookie('token',token,{maxAge:60*60*1000});
-       const reply = {
-         firstName: user.firstName,
-         emailId: user.emailId,
-         _id: user._id,
-         role: user.role,
-       };
+      const reply = {
+        firstName: user.firstName,
+        emailId: user.emailId,
+        _id: user._id,
+        role: user.role,
+      };
       res.status(201).json({
-        user:reply,
-        message:"Registered Successfully"
+        user: reply,
+        message: "Registered Successfully",
       });
-    }catch(err){
-      // console.error("❌ REGISTER ERROR:", err);
-      res.status(400).send("Error: "+err);
+    } catch (err) {
+      if (err.code === 11000) {
+        return res.status(400).json({ message: "Email already registered!" });
+      }
+      res.status(400).json({ message: err.message });
     }
 }
 

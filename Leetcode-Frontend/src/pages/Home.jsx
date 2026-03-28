@@ -77,7 +77,7 @@ export default function Home() {
         {/* Left Logo */}
         <div className="flex-1">
           <Link to="/" className="text-3xl font-bold text-primary">
-            LEETCODE
+            DEV Arena
           </Link>
         </div>
 
