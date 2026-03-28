@@ -127,7 +127,7 @@ export default function Home() {
       {/* Main */}
       <main className="p-6">
         <div className="sticky top-16 z-40 bg-base-200 pb-4">
-          <h2 className="text-4xl mt-2 font-bold">Welcome to LeetCode 🚀</h2>
+          <h2 className="text-4xl mt-2 font-bold">Welcome to DEV Arena 🚀</h2>
           <div className="flex flex-wrap mt-6 gap-4 p-3 w-[80%] rounded-xl shadow justify-between">
             <select
               className="select select-bordered"
@@ -189,7 +189,9 @@ export default function Home() {
                       {problem.title}
                     </h2>
                     {solvedproblems.some((sp) => sp._id === problem._id) && (
-                      <div className="badge badge-success gap-2 font-bold">Solved</div>
+                      <div className="badge badge-success gap-2 font-bold">
+                        Solved
+                      </div>
                     )}
                   </div>
 
